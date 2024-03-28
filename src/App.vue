@@ -8,7 +8,7 @@
 
 
 <style>
-body, html{
+body, html, h3, p{
   margin: 0;
   padding: 0;
 }

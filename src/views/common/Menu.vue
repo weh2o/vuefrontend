@@ -3,27 +3,25 @@
   <el-menu
       :default-active="router.currentRoute.value.fullPath"
       class="el-menu-vertical-demo"
-      @open="handleOpen"
-      @close="handleClose"
-      style="min-height: 100vh"
+      style="min-height: 100vh; border-right: none"
       router
       active-text-color="#ffd04b"
       background-color="beige"
       :collapse="menuCollapse"
   >
-    <h3 v-if="!menuCollapse" class="menu-title">學生系統</h3>
-    <el-menu-item index="/demo2">
+    <h3 class="menu-title">{{ menuCollapse ? '系統' : '校園系統' }}</h3>
+    <el-menu-item ref="home" @click="giveTitle" index="/home">
       <el-icon>
         <House/>
       </el-icon>
       <span>首頁</span>
     </el-menu-item>
 
-    <el-menu-item index="/demo">
+    <el-menu-item index="/studentManagement">
       <el-icon>
         <User/>
       </el-icon>
-      <span>Demo</span>
+      <span>學生管理</span>
     </el-menu-item>
 
     <el-menu-item index="/login">
@@ -62,13 +60,19 @@
 import {House, Location, Menu as IconMenu, User} from '@element-plus/icons-vue'
 import router from "@/router";
 import {useTagStore} from "@/store/tag";
-import {computed} from "vue";
+import {computed, ref} from "vue";
 
 const tagStore = useTagStore()
 
+// 控制菜單折疊的屬性
 const menuCollapse = computed(() => {
   return tagStore.menuCollapse
 })
+
+function giveTitle() {
+  const home = ref()
+  console.log(home)
+}
 
 </script>
 

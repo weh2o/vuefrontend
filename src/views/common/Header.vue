@@ -14,8 +14,8 @@
         </span>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item>個人資料</el-dropdown-item>
-            <el-dropdown-item divided>登出</el-dropdown-item>
+            <el-dropdown-item @click="toUserInfo">個人資料</el-dropdown-item>
+            <el-dropdown-item divided @click="logout">登出</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -27,11 +27,25 @@
 <script setup lang="ts">
 import {Menu} from '@element-plus/icons-vue'
 import {useTagStore} from "@/store/tag";
+import router from "@/router";
 
 const tagStore = useTagStore()
+// 左側導航欄收縮
 function handleMenu(){
   tagStore.changeTag()
 }
+
+// 跳轉到個人資料
+function toUserInfo() {
+  router.push({name:'UserInfo'})
+}
+// 登出
+function logout() {
+  localStorage.removeItem('user-Info')
+  router.push({name: 'Login'})
+}
+
+
 </script>
 
 <style scoped>

@@ -4,7 +4,7 @@
       <div class="login-title">登入</div>
       <el-form :model="data.form" ref="formRef" :rules="rules">
         <el-form-item prop="username">
-          <el-input prefix-icon="User" v-model="data.form.username" placeholder="請輸入帳號"/>
+          <el-input prefix-icon="User" v-model="data.form.name" placeholder="請輸入帳號"/>
         </el-form-item>
 
         <el-form-item prop="password">
@@ -34,14 +34,14 @@ import router from "@/router";
 // 表單資料
 const data = reactive({
   form: {
-    username: '',
+    name: '',
     password: '',
   }
 })
 
 // 用戶輸入驗證
 const rules = reactive({
-  username: [{required: true, message: '請輸入帳號', trigger: 'blur'},],
+  name: [{required: true, message: '請輸入帳號', trigger: 'blur'},],
   password: [{required: true, message: '請輸入密碼', trigger: 'blur'},]
 })
 
@@ -51,10 +51,11 @@ const formRef = ref()
 // 登入請求
 async function loginAction(){
    const {data:res} = await axios.post('http://localhost:8081/login', data.form)
-  console.log(res.code)
+
   if ('200' == res.code){
     ElMessage.success(res.msg)
     localStorage.setItem('user-Info', JSON.stringify(res.data))
+    router.push({name: 'Home'})
   }else {
     ElMessage.error(res.msg)
   }
