@@ -6,6 +6,15 @@
         新增
       </el-button>
       <!-- 搜索區 -->
+      <el-form :model="searchForm" inline>
+        <el-form-item>
+          <el-input placeholder="請輸入學生證或姓名" v-model="searchForm.nameOrNo"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="search">查詢</el-button>
+          <el-button type="success" @click="findAll">全部</el-button>
+        </el-form-item>
+      </el-form>
     </div>
 
     <!-- 頁面資料 -->
@@ -135,6 +144,11 @@ const reload: any = inject("reload");
 // 頁面資料
 let tableData: any = ref([])
 
+// 查詢框
+let searchForm = reactive({
+  nameOrNo: '',
+})
+
 // 資料總數【分頁用】
 let total = ref(0);
 let pageSize = ref(5)
@@ -174,7 +188,6 @@ async function findAll() {
   if ('200' == res.code) {
     tableData.value = res.data.data
     total.value = res.data ? res.data.total : 0
-
   } else {
     ElMessage.error(res.msg)
   }
@@ -205,7 +218,6 @@ const handleClose = (done: () => void) => {
     cancelButtonText: '繼續',
   })
       .then(() => {
-
         done()
         // 清空資料
         formRef.value.resetFields()
@@ -319,6 +331,32 @@ function sortChange(sort: any) {
   findAll()
 }
 
+// 查詢事件
+function search() {
+  console.log(searchForm.nameOrNo)
+  if (searchForm.nameOrNo !== "") {
+    findStu(searchForm.nameOrNo)
+  } else {
+    ElMessage.error("請輸入學生證或姓名")
+  }
+}
+
+/**
+ * 查一個學生
+ * @param condition 條件
+ */
+async function findStu(condition: string) {
+  const {data: res} = await axios.get('http://localhost:8081/student/search/' + condition,
+      {headers: {'Content-Type': 'application/json'},}
+  )
+  console.log(res.data)
+  if ('200' == res.code) {
+    tableData.value = res.data.data
+    total.value = res.data ? res.data.total : 0
+  } else {
+
+  }
+}
 
 </script>
 
@@ -333,11 +371,12 @@ function sortChange(sort: any) {
   position: absolute;
   width: 100%;
   height: 100%;
-
-  ::v-deep .el-table__inner-wrapper {
-    height: 100%;
-  }
 }
 
+.manage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
 </style>
