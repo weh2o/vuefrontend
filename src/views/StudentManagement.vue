@@ -1,6 +1,6 @@
 <template>
 
-  <el-button class="add-button" type="success" plain @click="addDialogPop()">
+  <el-button class="add-button" type="primary" plain @click="addDialogPop()">
     新增
   </el-button>
 
@@ -23,7 +23,7 @@
     <el-table-column prop="mail" label="信箱" sortable/>
     <el-table-column label="操作">
       <template #default="scope">
-        <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
+        <el-button size="small" type="info" @click="handleEdit(scope.$index, scope.row)"
         >編輯
         </el-button>
 
@@ -171,8 +171,6 @@ const handleAdd = (done: () => void) => {
         formRef.value.resetFields()
         // 關閉視窗
         dialogVisible.value = false
-        // 刷新頁面
-        reload()
         done()
       })
       .catch(() => {
@@ -188,6 +186,8 @@ async function addStu() {
   )
   if ('200' == res.code) {
     ElMessage.success(res.msg)
+    // 刷新頁面
+    reload()
   } else {
     ElMessage.error(res.msg)
   }
@@ -224,9 +224,10 @@ async function removeStu(id: string) {
   const {data: res} = await axios.delete('http://localhost:8081/student/' + id,
       {headers: {'Content-Type': 'application/json'},}
   )
-  console.log(res.code)
   if ('200' == res.code) {
     ElMessage.success(res.msg)
+    // 刷新頁面
+    reload()
   } else {
     ElMessage.error(res.msg)
   }
@@ -240,8 +241,6 @@ const deleteStu = (id: string) => {
   })
       .then(() => {
         removeStu(id)
-        // 刷新頁面
-        reload()
       })
       .catch(() => {
         // catch error
