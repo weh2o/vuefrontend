@@ -77,7 +77,7 @@
           :before-close="handleClose"
       >
         <!-- 用inline select會失效    -->
-        <el-form :model="form" ref="formRef">
+        <el-form :model="form" ref="formRef" :rules="rules">
           <el-form-item prop="name" label="姓名">
             <el-input v-model="form.name" placeholder="請輸入姓名"/>
           </el-form-item>
@@ -102,7 +102,6 @@
                 v-model="form.birth"
                 type="date"
                 placeholder="請選擇日期"
-                value-format="yyyy-MM-DD"
             />
           </el-form-item>
 
@@ -120,7 +119,8 @@
         <template #footer>
           <div class="dialog-footer">
             <el-button @click="dialogVisible = false">取消</el-button>
-            <el-button type="primary" @click="handleAdd">
+            <!--            <el-button type="primary" @click="handleAdd">-->
+            <el-button type="primary" @click="addStuValidate(formRef)">
               確定
             </el-button>
           </div>
@@ -134,12 +134,14 @@
 
 <script setup lang="ts">
 import {inject, onBeforeMount, reactive, ref, toRaw} from 'vue'
-import {ElMessage, ElMessageBox} from 'element-plus'
+import {ElMessage, ElMessageBox, FormInstance} from 'element-plus'
 import axios from "axios";
+
+
+const BASE_URL = 'http://localhost:8081/student'
 
 // 刷新頁面用
 const reload: any = inject("reload");
-
 
 // 頁面資料
 let tableData: any = ref([])
@@ -171,17 +173,34 @@ let form = reactive({
   birth: '',
 })
 
+// 用戶輸入驗證
+const rules = reactive({
+  name: [{required: true, message: '請輸入姓名', trigger: 'blur'},],
+  sex: [{required: true, message: '請選擇性別', trigger: 'blur'},],
+})
+
+const addStuValidate = async (formEl: FormInstance | undefined) => {
+  // 驗證輸入
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      handleAdd()
+    }
+  })
+}
+
 
 // 查詢所有學生資料
 async function findAll() {
-  const {data: res} = await axios.get('http://localhost:8081/student/all',
+  const {data: res} = await axios.get(BASE_URL,
       {
         headers: {'Content-Type': 'application/json'},
         params: {
           page: nowPage.value,
           pageSize: pageSize.value,
           prop: sortProp.value,
-          order: sortOrder.value
+          order: sortOrder.value,
+          nameOrNo: searchForm.nameOrNo,
         }
       }
   )
@@ -235,6 +254,7 @@ const handleAdd = (done: () => void) => {
     cancelButtonText: '再想想',
   })
       .then(() => {
+        console.log(form)
         addStu()
         // 清空資料
         formRef.value.resetFields()
@@ -249,8 +269,9 @@ const handleAdd = (done: () => void) => {
 
 // 新增學生函數
 async function addStu() {
+  console.log(form)
   const json = JSON.stringify(form)
-  const {data: res} = await axios.post('http://localhost:8081/student', json,
+  const {data: res} = await axios.post(BASE_URL, json,
       {headers: {'Content-Type': 'application/json'}}
   )
   if ('200' == res.code) {
@@ -279,7 +300,7 @@ const handleEdit = (index: number, row: any) => {
 
 // 刪除學生
 async function removeStu(id: string) {
-  const {data: res} = await axios.delete('http://localhost:8081/student/' + id,
+  const {data: res} = await axios.delete(BASE_URL + '/' + id,
       {headers: {'Content-Type': 'application/json'},}
   )
   if ('200' == res.code) {
@@ -335,9 +356,8 @@ function sortChange(sort: any) {
 function search() {
   console.log(searchForm.nameOrNo)
   if (searchForm.nameOrNo !== "") {
-    findStu(searchForm.nameOrNo)
-  } else {
-    ElMessage.error("請輸入學生證或姓名")
+    findAll()
+
   }
 }
 
@@ -346,7 +366,7 @@ function search() {
  * @param condition 條件
  */
 async function findStu(condition: string) {
-  const {data: res} = await axios.get('http://localhost:8081/student/search/' + condition,
+  const {data: res} = await axios.get(BASE_URL + '/search/' + condition,
       {headers: {'Content-Type': 'application/json'},}
   )
   console.log(res.data)
