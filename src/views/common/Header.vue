@@ -28,6 +28,7 @@
 import {Menu} from '@element-plus/icons-vue'
 import {useTagStore} from "@/store/tag";
 import router from "@/router";
+import {delToken} from "@/util/tokenUtil"
 
 const tagStore = useTagStore()
 // 左側導航欄收縮
@@ -41,7 +42,7 @@ function toUserInfo() {
 }
 // 登出
 function logout() {
-  localStorage.removeItem('user-Info')
+  delToken()
   router.push({name: 'Login'})
 }
 

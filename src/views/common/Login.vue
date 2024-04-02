@@ -28,8 +28,9 @@
 import {reactive, ref} from "vue";
 import axios from "axios";
 import type {FormInstance} from "element-plus";
-import {ElAlert, ElMessage} from "element-plus";
+import {ElMessage} from "element-plus";
 import router from "@/router";
+import {setToken} from "@/util/tokenUtil"
 
 // 表單資料
 const data = reactive({
@@ -49,14 +50,14 @@ const formRef = ref()
 
 // 登入函數
 // 登入請求
-async function loginAction(){
-   const {data:res} = await axios.post('http://localhost:8081/login', data.form)
+async function loginAction() {
+  const {data: res} = await axios.post('http://localhost:8081/login', data.form)
 
-  if ('200' == res.code){
+  if ('200' == res.code) {
     ElMessage.success(res.msg)
-    localStorage.setItem('user-Info', JSON.stringify(res.data))
+    setToken(JSON.stringify(res.data), 7)
     router.push({name: 'Home'})
-  }else {
+  } else {
     ElMessage.error(res.msg)
   }
 }
