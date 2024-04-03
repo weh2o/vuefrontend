@@ -1,22 +1,30 @@
 <template>
   <div class="login-container">
     <div class="login-box">
-      <div class="login-title">登入</div>
+      <div class="login-title">{{ title }}</div>
       <el-form :model="data.form" ref="formRef" :rules="rules">
-        <el-form-item prop="username">
-          <el-input prefix-icon="User" v-model="data.form.name" placeholder="請輸入帳號"/>
+        <el-form-item prop="account">
+          <el-input prefix-icon="User" v-model="data.form.account" placeholder="使用者帳號"/>
         </el-form-item>
 
         <el-form-item prop="password">
-          <el-input prefix-icon="Lock" show-password v-model="data.form.password" placeholder="請輸入密碼"/>
+          <el-input prefix-icon="Lock" show-password v-model="data.form.password" placeholder="密碼"/>
+        </el-form-item>
+
+        <el-form-item v-if="pageStatus" prop="no">
+          <div>
+            <div>【選填】 輸入學生證進行資料同步。</div>
+          </div>
+          <el-input prefix-icon="Lock" v-model="data.form.no" placeholder="學生證"/>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" style="width: 100%" @click="login(formRef)">登入</el-button>
+          <el-button type="primary" style="width: 100%" @click="subForm(formRef)">{{ title }}</el-button>
         </el-form-item>
 
         <div style="margin-top: 30px; text-align: right">
-          <a href="">註冊</a>
+          <span style="color: #999999">{{ pageStatus ? loginInfo : registerInfo }} </span>
+          <el-button @click="changeContent">{{ bottomBtnName }}</el-button>
         </div>
       </el-form>
     </div>
@@ -25,52 +33,89 @@
 </template>
 
 <script setup lang="ts">
-import {reactive, ref} from "vue";
-import axios from "axios";
+import {inject, reactive, ref} from "vue";
 import type {FormInstance} from "element-plus";
 import {ElMessage} from "element-plus";
 import router from "@/router";
 import {setToken} from "@/util/tokenUtil"
 import http from "@/util/request";
 
+// 刷新頁面用
+const reload: any = inject("reload");
+
+let title = ref('登入')
+// true 註冊 false 登入
+let pageStatus = ref(false)
+const registerInfo = ref('校園新朋友? ')
+const loginInfo = ref('已是校園一員 ')
+const bottomBtnName = ref('註冊')
+
 // 表單資料
 const data = reactive({
   form: {
+    account: '',
     name: '',
     password: '',
+    no: '',
   }
 })
 
 // 用戶輸入驗證
 const rules = reactive({
-  name: [{required: true, message: '請輸入帳號', trigger: 'blur'},],
+  name: [{required: true, message: '請輸入使用者帳號', trigger: 'blur'},],
   password: [{required: true, message: '請輸入密碼', trigger: 'blur'},]
 })
 
 const formRef = ref()
 
 // 登入函數
-// 登入請求
-async function loginAction() {
+async function loginHandle() {
   const {data: res} = await http.post('/login', data.form)
-
   if ('200' == res.code) {
     ElMessage.success(res.msg)
     setToken(JSON.stringify(res.data), 7)
     router.push({name: 'Home'})
-  } else {
-    ElMessage.error(res.msg)
   }
 }
 
-const login = async (formEl: FormInstance | undefined) => {
+// 註冊
+async function registerHandle() {
+  const {data: res} = await http.post('/register', data.form)
+  if ('200' == res.code) {
+    ElMessage.success(res.msg)
+    reload()
+  }
+}
+
+// 表單提交事件
+const subForm = async (formEl: FormInstance | undefined) => {
   // 驗證輸入
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      loginAction()
+      // 分辨是註冊或登入功能
+      if (pageStatus.value) {
+        registerHandle()
+      } else {
+        loginHandle()
+      }
     }
   })
+}
+
+function changeContent() {
+  if (title.value == '登入') {
+    title.value = '註冊'
+  } else {
+    title.value = '登入'
+  }
+
+  if (bottomBtnName.value == '註冊') {
+    bottomBtnName.value = '登入'
+  } else {
+    bottomBtnName.value = '註冊'
+  }
+  pageStatus.value = !pageStatus.value
 }
 
 
