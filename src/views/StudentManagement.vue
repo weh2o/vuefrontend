@@ -135,10 +135,10 @@
 <script setup lang="ts">
 import {inject, onBeforeMount, reactive, ref, toRaw} from 'vue'
 import {ElMessage, ElMessageBox, FormInstance} from 'element-plus'
-import axios from "axios";
+import http from "@/util/request";
 
 
-const BASE_URL = 'http://localhost:8081/student'
+const BASE_URL = '/student'
 
 // 刷新頁面用
 const reload: any = inject("reload");
@@ -192,9 +192,8 @@ const addStuValidate = async (formEl: FormInstance | undefined) => {
 
 // 查詢所有學生資料
 async function findAll() {
-  const {data: res} = await axios.get(BASE_URL,
+  const {data: res} = await http.get(BASE_URL,
       {
-        headers: {'Content-Type': 'application/json'},
         params: {
           page: nowPage.value,
           pageSize: pageSize.value,
@@ -207,8 +206,6 @@ async function findAll() {
   if ('200' == res.code) {
     tableData.value = res.data.data
     total.value = res.data ? res.data.total : 0
-  } else {
-    ElMessage.error(res.msg)
   }
 }
 
@@ -217,15 +214,18 @@ const dialogVisible = ref(false)
 
 // 彈出框標題(新增、修改)
 let dialogTitle = ref('')
+let dialogConfirm = ref('')
 
 // 新增框 彈出
 const addDialogPop = (() => {
   dialogTitle.value = '新增'
+  dialogConfirm.value = '新增'
   dialogVisible.value = true
 })
 // 修改框 彈出
 const updateDialogPop = (() => {
   dialogTitle.value = '修改'
+  dialogConfirm.value = '修改'
   dialogVisible.value = true
 })
 
@@ -249,12 +249,11 @@ const handleClose = (done: () => void) => {
 
 // 新增確定提示、新增學生操作
 const handleAdd = (done: () => void) => {
-  ElMessageBox.confirm('確定要新增嗎?', {
+  ElMessageBox.confirm('確定要' + dialogConfirm.value + '嗎?', {
     confirmButtonText: '新增',
     cancelButtonText: '再想想',
   })
       .then(() => {
-        console.log(form)
         addStu()
         // 清空資料
         formRef.value.resetFields()
@@ -269,17 +268,12 @@ const handleAdd = (done: () => void) => {
 
 // 新增學生函數
 async function addStu() {
-  console.log(form)
   const json = JSON.stringify(form)
-  const {data: res} = await axios.post(BASE_URL, json,
-      {headers: {'Content-Type': 'application/json'}}
-  )
+  const {data: res} = await http.post(BASE_URL, json)
   if ('200' == res.code) {
     ElMessage.success(res.msg)
     // 刷新頁面
     reload()
-  } else {
-    ElMessage.error(res.msg)
   }
 }
 
@@ -300,15 +294,11 @@ const handleEdit = (index: number, row: any) => {
 
 // 刪除學生
 async function removeStu(id: string) {
-  const {data: res} = await axios.delete(BASE_URL + '/' + id,
-      {headers: {'Content-Type': 'application/json'},}
-  )
+  const {data: res} = await http.delete(BASE_URL + '/' + id)
   if ('200' == res.code) {
     ElMessage.success(res.msg)
     // 刷新頁面
     reload()
-  } else {
-    ElMessage.error(res.msg)
   }
 }
 
@@ -366,15 +356,10 @@ function search() {
  * @param condition 條件
  */
 async function findStu(condition: string) {
-  const {data: res} = await axios.get(BASE_URL + '/search/' + condition,
-      {headers: {'Content-Type': 'application/json'},}
-  )
-  console.log(res.data)
+  const {data: res} = await http.get(BASE_URL + '/search/' + condition,)
   if ('200' == res.code) {
     tableData.value = res.data.data
     total.value = res.data ? res.data.total : 0
-  } else {
-
   }
 }
 

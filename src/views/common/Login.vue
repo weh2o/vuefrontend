@@ -31,6 +31,7 @@ import type {FormInstance} from "element-plus";
 import {ElMessage} from "element-plus";
 import router from "@/router";
 import {setToken} from "@/util/tokenUtil"
+import http from "@/util/request";
 
 // 表單資料
 const data = reactive({
@@ -51,7 +52,7 @@ const formRef = ref()
 // 登入函數
 // 登入請求
 async function loginAction() {
-  const {data: res} = await axios.post('http://localhost:8081/login', data.form)
+  const {data: res} = await http.post('/login', data.form)
 
   if ('200' == res.code) {
     ElMessage.success(res.msg)
