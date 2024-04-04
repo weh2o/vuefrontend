@@ -39,6 +39,9 @@ import {ElMessage} from "element-plus";
 import router from "@/router";
 import {setToken} from "@/util/tokenUtil"
 import http from "@/util/request";
+import {useUserStore} from '@/store/user'
+
+const userStore = useUserStore()
 
 // 刷新頁面用
 const reload: any = inject("reload");
@@ -73,7 +76,10 @@ async function loginHandle() {
   const {data: res} = await http.post('/login', data.form)
   if ('200' == res.code) {
     ElMessage.success(res.msg)
-    setToken(JSON.stringify(res.data), 7)
+    // token
+    setToken(JSON.stringify(res.data.token), 7)
+    // 使用者名稱
+    userStore.name = res.data.name
     router.push({name: 'Home'})
   }
 }

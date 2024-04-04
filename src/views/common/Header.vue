@@ -14,7 +14,9 @@
         </span>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item @click="toUserInfo">個人資料</el-dropdown-item>
+            <el-dropdown-item icon="User">{{ userStore.name }}</el-dropdown-item>
+            <el-dropdown-item divided @click="toUserInfo">個人資料</el-dropdown-item>
+            <el-dropdown-item>設定</el-dropdown-item>
             <el-dropdown-item divided @click="logout">登出</el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -29,17 +31,21 @@ import {Menu} from '@element-plus/icons-vue'
 import {useTagStore} from "@/store/tag";
 import router from "@/router";
 import {delToken} from "@/util/tokenUtil"
+import {useUserStore} from '@/store/user'
 
+const userStore = useUserStore()
 const tagStore = useTagStore()
+
 // 左側導航欄收縮
-function handleMenu(){
+function handleMenu() {
   tagStore.changeTag()
 }
 
 // 跳轉到個人資料
 function toUserInfo() {
-  router.push({name:'UserInfo'})
+  router.push({name: 'UserInfo'})
 }
+
 // 登出
 function logout() {
   delToken()
@@ -62,8 +68,9 @@ function logout() {
     font-size: 14px;
     margin-left: 10px;
   }
-  .r-content{
-    .user{
+
+  .r-content {
+    .user {
       width: 40px;
       height: 40px;
       border-radius: 50%;

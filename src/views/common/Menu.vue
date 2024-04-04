@@ -28,7 +28,7 @@
       <el-icon>
         <icon-menu/>
       </el-icon>
-      <span>安安</span>
+      <span>我是登入頁面</span>
     </el-menu-item>
 
     <el-sub-menu index="/">
@@ -71,7 +71,6 @@ const menuCollapse = computed(() => {
 
 function giveTitle() {
   const home = ref()
-  console.log(home)
 }
 
 </script>
