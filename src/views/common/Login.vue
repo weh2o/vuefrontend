@@ -2,6 +2,15 @@
   <div class="login-container">
     <div class="login-box">
       <div class="login-title">{{ title }}</div>
+
+      <!--  註冊的身分    -->
+      <div v-if="pageStatus" style="margin-bottom: 20px; text-align: center;">
+        <el-radio-group v-model="data.form.identity" size="large" fill="cadetblue" @change="changeIdentity">
+          <el-radio-button label="學生" value="1"/>
+          <el-radio-button label="老師" value="2"/>
+        </el-radio-group>
+      </div>
+
       <el-form :model="data.form" ref="formRef" :rules="rules">
         <el-form-item prop="account">
           <el-input prefix-icon="User" v-model="data.form.account" placeholder="使用者帳號"/>
@@ -13,13 +22,13 @@
 
         <el-form-item v-if="pageStatus" prop="no">
           <div>
-            <div>【選填】 輸入學生證進行資料同步。</div>
+            <div>{{ noTextInfo }}</div>
           </div>
-          <el-input prefix-icon="Lock" v-model="data.form.no" placeholder="學生證"/>
+          <el-input prefix-icon="Lock" v-model="data.form.no" :placeholder="noTextInnerInfo"/>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" style="width: 100%" @click="subForm(formRef)">{{ title }}</el-button>
+          <el-button type="primary" style="width: 100%" @click="subForm(formRef)">{{ btnName }}</el-button>
         </el-form-item>
 
         <div style="margin-top: 30px; text-align: right">
@@ -33,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import {inject, reactive, ref} from "vue";
+import {computed, inject, reactive, ref} from "vue";
 import type {FormInstance} from "element-plus";
 import {ElMessage} from "element-plus";
 import router from "@/router";
@@ -47,11 +56,26 @@ const userStore = useUserStore()
 const reload: any = inject("reload");
 
 let title = ref('登入')
+let btnName = ref('登入')
+
 // true 註冊 false 登入
 let pageStatus = ref(false)
 const registerInfo = ref('校園新朋友? ')
 const loginInfo = ref('已是校園一員 ')
 const bottomBtnName = ref('註冊')
+const noTextInfo = ref('【選填】 輸入學生證進行資料同步。')
+const noTextInnerInfo = ref('學生證')
+
+// 計算屬性
+// 學生身分
+let isStudent = computed(() => {
+  return '1' == data.form.identity
+})
+// 教師身分
+let isTeacher = computed(() => {
+  return '2' == data.form.identity
+})
+
 
 // 表單資料
 const data = reactive({
@@ -60,13 +84,14 @@ const data = reactive({
     name: '',
     password: '',
     no: '',
+    identity: '1',
   }
 })
 
 // 用戶輸入驗證
 const rules = reactive({
-  name: [{required: true, message: '請輸入使用者帳號', trigger: 'blur'},],
-  password: [{required: true, message: '請輸入密碼', trigger: 'blur'},]
+  account: [{required: true, message: '請輸入使用者帳號', trigger: 'blur'},],
+  password: [{required: true, message: '請輸入密碼', trigger: 'blur'},],
 })
 
 const formRef = ref()
@@ -101,7 +126,12 @@ const subForm = async (formEl: FormInstance | undefined) => {
     if (valid) {
       // 分辨是註冊或登入功能
       if (pageStatus.value) {
-        registerHandle()
+        // 如果是老師要判斷教師證是否為空
+        if (isTeacher.value && "" == data.form.no) {
+          ElMessage.error("註冊老師帳號教師證不能為空白")
+        } else {
+          registerHandle()
+        }
       } else {
         loginHandle()
       }
@@ -109,21 +139,31 @@ const subForm = async (formEl: FormInstance | undefined) => {
   })
 }
 
+// 修改註冊、登入題是文字
 function changeContent() {
-  if (title.value == '登入') {
-    title.value = '註冊'
-  } else {
-    title.value = '登入'
-  }
-
-  if (bottomBtnName.value == '註冊') {
+  pageStatus.value = !pageStatus.value
+  if (pageStatus.value) {
+    title.value = '選擇身分'
+    btnName.value = '註冊'
     bottomBtnName.value = '登入'
   } else {
+    title.value = '登入'
+    btnName.value = '登入'
     bottomBtnName.value = '註冊'
   }
-  pageStatus.value = !pageStatus.value
 }
 
+// 註冊時身分選擇
+function changeIdentity() {
+  if (isStudent.value) {
+    noTextInfo.value = '【選填】 輸入學生證進行資料同步。'
+    noTextInnerInfo.value = '學生證'
+  }
+  if (isTeacher.value) {
+    noTextInfo.value = '【必填】 輸入教師證進行註冊。'
+    noTextInnerInfo.value = '教師證'
+  }
+}
 
 </script>
 
