@@ -66,7 +66,6 @@ const bottomBtnName = ref('註冊')
 const noTextInfo = ref('【選填】 輸入學生證進行資料同步。')
 const noTextInnerInfo = ref('學生證')
 
-// 計算屬性
 // 學生身分
 let isStudent = computed(() => {
   return '1' == data.form.identity
@@ -92,6 +91,7 @@ const data = reactive({
 const rules = reactive({
   account: [{required: true, message: '請輸入使用者帳號', trigger: 'blur'},],
   password: [{required: true, message: '請輸入密碼', trigger: 'blur'},],
+  no: [{required: false, message: '請輸入教師證', trigger: 'blur'},],
 })
 
 const formRef = ref()
@@ -126,12 +126,7 @@ const subForm = async (formEl: FormInstance | undefined) => {
     if (valid) {
       // 分辨是註冊或登入功能
       if (pageStatus.value) {
-        // 如果是老師要判斷教師證是否為空
-        if (isTeacher.value && "" == data.form.no) {
-          ElMessage.error("註冊老師帳號教師證不能為空白")
-        } else {
-          registerHandle()
-        }
+        registerHandle()
       } else {
         loginHandle()
       }
@@ -139,8 +134,9 @@ const subForm = async (formEl: FormInstance | undefined) => {
   })
 }
 
-// 修改註冊、登入題是文字
+// 修改註冊、登入提示文字
 function changeContent() {
+  formRef.value.clearValidate()
   pageStatus.value = !pageStatus.value
   if (pageStatus.value) {
     title.value = '選擇身分'
@@ -158,11 +154,15 @@ function changeIdentity() {
   if (isStudent.value) {
     noTextInfo.value = '【選填】 輸入學生證進行資料同步。'
     noTextInnerInfo.value = '學生證'
+    rules.no[0].required = false
   }
   if (isTeacher.value) {
     noTextInfo.value = '【必填】 輸入教師證進行註冊。'
     noTextInnerInfo.value = '教師證'
+    rules.no[0].required = true
   }
+  // 清除驗證後的錯誤提示
+  formRef.value.clearValidate()
 }
 
 </script>
