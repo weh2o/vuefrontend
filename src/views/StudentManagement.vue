@@ -134,7 +134,7 @@
 
 <script setup lang="ts">
 import {inject, onBeforeMount, reactive, ref, toRaw} from 'vue'
-import {ElMessage, ElMessageBox, FormInstance} from 'element-plus'
+import {ElMessage, ElMessageBox, type FormInstance} from 'element-plus'
 import http from "@/util/request";
 
 
@@ -344,10 +344,8 @@ function sortChange(sort: any) {
 
 // 查詢事件
 function search() {
-  console.log(searchForm.nameOrNo)
   if (searchForm.nameOrNo !== "") {
     findAll()
-
   }
 }
 
