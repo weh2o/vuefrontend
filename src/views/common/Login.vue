@@ -6,7 +6,7 @@
       <!--  註冊的身分    -->
       <div v-if="pageStatus" style="margin-bottom: 20px; text-align: center;">
         <el-radio-group v-model="data.form.identity" size="large" fill="cadetblue" @change="changeIdentity">
-          <el-radio-button label="學生" value="1"/>
+          <el-radio-button label="學生" value="3"/>
           <el-radio-button label="老師" value="2"/>
         </el-radio-group>
       </div>
@@ -68,7 +68,7 @@ const noTextInnerInfo = ref('學生證')
 
 // 學生身分
 let isStudent = computed(() => {
-  return '1' == data.form.identity
+  return '3' == data.form.identity
 })
 // 教師身分
 let isTeacher = computed(() => {
@@ -83,7 +83,7 @@ const data = reactive({
     name: '',
     password: '',
     no: '',
-    identity: '1',
+    identity: '3',
   }
 })
 
@@ -104,7 +104,10 @@ async function loginHandle() {
     // token
     setToken(JSON.stringify(res.data.token), 7)
     // 使用者名稱
-    userStore.name = res.data.name
+    userStore.$patch({
+      name: res.data.name,
+      id: res.data.id,
+    })
     router.push({name: 'Home'})
   }
 }

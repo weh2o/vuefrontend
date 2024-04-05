@@ -31,7 +31,6 @@ http.interceptors.response.use(res => {
     const code = res.data.code
 
     if ('401' == code || '401' === code){
-        console.log('??????')
         ElMessage.error(res.data.msg)
         delToken()
         router.push({name: 'Login'})

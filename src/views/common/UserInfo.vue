@@ -7,14 +7,17 @@
           <img src="@/assets/imgs/user.jpg" alt="">
           <div class="user-title">
             <div class="name">{{ name }}</div>
-            <div class="user-role">我是誰</div>
+            <div class="user-role">{{ identityStr }}</div>
             <div class="last-time">上次登入時間: <span>{{ lastLoginTime }}</span></div>
           </div>
         </div>
 
         <div class="login-info">
-          <el-row class="info-row">
-            <el-col :span="24"><h3>個人資料</h3></el-col>
+          <el-row class="info-row" style="margin-bottom: 5px">
+            <el-col :span="12"><h3>個人資料</h3></el-col>
+            <el-col style="text-align: right" :span="12">
+              <el-button>修改資料</el-button>
+            </el-col>
           </el-row>
 
           <el-row class="info-row">
@@ -22,13 +25,13 @@
               <div class="info-column">性別:</div>
             </el-col>
             <el-col :span="12">
-              <div>{{ sex }}</div>
+              <div>{{ gender }}</div>
             </el-col>
           </el-row>
 
           <el-row class="info-row">
             <el-col :span="8">
-              <div class="info-column">學生證:</div>
+              <div class="info-column">{{ noName }}</div>
             </el-col>
             <el-col :span="12">
               <div>{{ no }}</div>
@@ -49,7 +52,7 @@
               <div class="info-column">年齡:</div>
             </el-col>
             <el-col :span="12">
-              <div>{{ age }}</div>
+              <div>{{ id }}</div>
             </el-col>
           </el-row>
 
@@ -84,7 +87,24 @@
         </div>
 
         <div>
-          <h2>更改密碼</h2>
+          <h3 style="margin-bottom: 10px;">更改密碼</h3>
+          <el-form :model="form" ref="formRef" :rules="rules">
+            <div style="width: 80%">
+              <el-form-item prop="oldPassword">
+                <el-input prefix-icon="Lock" v-model="form.oldPassword" show-password placeholder="舊密碼"/>
+              </el-form-item>
+              <el-form-item prop="newPassword">
+                <el-input prefix-icon="Lock" v-model="form.newPassword" show-password placeholder="新密碼"/>
+              </el-form-item>
+              <el-form-item prop="newPasswordCheck">
+                <el-input prefix-icon="Lock" v-model="form.newPasswordCheck" show-password
+                          placeholder="再次輸入新密碼"/>
+              </el-form-item>
+            </div>
+            <el-form-item style="text-align: right">
+              <el-button type="primary" style="width: 40%" @click="changePsw(formRef)">修改密碼</el-button>
+            </el-form-item>
+          </el-form>
         </div>
 
       </el-card>
@@ -93,10 +113,43 @@
 </template>
 
 <script setup lang="ts">
-import {onBeforeMount, reactive, toRefs} from 'vue'
+import {computed, onBeforeMount, reactive, ref, toRefs} from 'vue'
 import http from "@/util/request";
+import {ElMessage, type FormInstance} from "element-plus";
+
+
+const noName = computed(() => {
+  if ('3' == identity.value) {
+    return '學生證:'
+  }
+  if ('2' == identity.value) {
+    return '教師證:'
+  }
+})
+
+const identityStr = computed(() => {
+  if ('3' == identity.value) {
+    return '學生'
+  }
+  if ('2' == identity.value) {
+    return '老師'
+  }
+})
+
+const gender = computed(() => {
+  if ('1' == sex.value) {
+    return '男'
+  } else if ('0' == sex.value) {
+    return '女'
+  } else {
+    return '未知'
+  }
+})
+
+const formRef = ref()
 
 let userInfo = reactive({
+  id: '',
   name: '',
   age: '',
   sex: '',
@@ -106,19 +159,68 @@ let userInfo = reactive({
   birth: '',
   lastLoginTime: '',
   address: '',
+  identity: '',
 })
 
-let {name, age, sex, no, phone, mail, birth, lastLoginTime, address} = toRefs(userInfo)
+let {name, age, sex, no, phone, mail, birth, lastLoginTime, address, identity, id} = toRefs(userInfo)
+
+const form = reactive({
+  oldPassword: '',
+  newPassword: '',
+  newPasswordCheck: '',
+})
+
+// 第二次密碼確認
+const validateNewPass = (rule: any, value: any, callback: any) => {
+  if (value === '') {
+    callback(new Error('請輸入新密碼'))
+  } else {
+    if (form.newPasswordCheck !== form.newPassword) {
+      callback(new Error('新密碼輸入不一致'))
+      return
+    }
+    callback()
+  }
+}
+
+// 更改密碼驗證
+const rules = reactive({
+  oldPassword: [{required: true, message: '請輸入密碼', trigger: 'blur'},],
+  newPassword: [{required: true, message: '請輸入新密碼', trigger: 'blur'},],
+  newPasswordCheck: [{validator: validateNewPass, trigger: 'blur'},],
+})
+
 
 // 掛載前執行
 onBeforeMount(() => {
   getInfo()
 })
 
+// 獲取使用者資料
 async function getInfo() {
   const {data: res} = await http.get("/user/info")
-  console.log(res)
   Object.assign(userInfo, res.data)
+
+}
+
+// 修改密碼事件
+async function changePsw(formEl: FormInstance | undefined) {
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      modifyPassword()
+    }
+  })
+}
+
+async function modifyPassword() {
+  const jsonData = JSON.stringify(form);
+  const {data: res} = await http.patch('/user/' + id.value, jsonData)
+  if ('200' == res.code) {
+    ElMessage.success(res.msg)
+  }
+  // 清空資料
+  formRef.value.resetFields()
 }
 
 
@@ -157,7 +259,6 @@ async function getInfo() {
 
 .login-info {
   .info-column {
-
     font-size: 18px;
   }
 
