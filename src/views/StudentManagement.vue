@@ -169,10 +169,25 @@ let form = reactive({
   birth: '',
 })
 
+// 信箱正則
+const validateMail = (rule: any, value: any, callback: any) => {
+  const mailReg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/
+
+  if (value) {
+    if (mailReg.test(value)) {
+      callback()
+    } else {
+      callback(new Error('請輸入正確的信箱'))
+    }
+  }
+  callback()
+}
+
 // 用戶輸入驗證
 const rules = reactive({
   name: [{required: true, message: '請輸入姓名', trigger: 'blur'},],
   sex: [{required: true, message: '請選擇性別', trigger: 'blur'},],
+  mail: [{validator: validateMail, trigger: 'blur'},],
 })
 
 const addStuValidate = async (formEl: FormInstance | undefined) => {
@@ -184,7 +199,6 @@ const addStuValidate = async (formEl: FormInstance | undefined) => {
     }
   })
 }
-
 
 // 查詢所有學生資料
 async function findAll() {
