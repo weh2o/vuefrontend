@@ -103,10 +103,11 @@ async function loginHandle() {
     ElMessage.success(res.msg)
     // token
     setToken(JSON.stringify(res.data.token), 7)
-    // 使用者名稱
+    // 使用者資料
     userStore.$patch({
       name: res.data.name,
       id: res.data.id,
+      roles: res.data.roles
     })
     router.push({name: 'Home'})
   }

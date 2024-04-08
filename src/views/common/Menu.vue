@@ -10,59 +10,72 @@
       :collapse="menuCollapse"
   >
     <h3 class="menu-title">{{ menuCollapse ? '系統' : '校園系統' }}</h3>
-    <el-menu-item ref="home" @click="giveTitle" index="/home">
+
+    <el-menu-item v-for="menu in menuInfo" :key="menu.label" :index="menu.path">
       <el-icon>
-        <House/>
+        <component :is="menu.icon"></component>
       </el-icon>
-      <span>首頁</span>
+      <span>{{ menu.label }}</span>
     </el-menu-item>
 
-    <el-menu-item index="/studentManagement">
-      <el-icon>
-        <User/>
-      </el-icon>
-      <span>學生管理</span>
-    </el-menu-item>
+    <!--      <el-sub-menu index="/">-->
+    <!--        <template #title>-->
+    <!--          <el-icon>-->
+    <!--            <location/>-->
+    <!--          </el-icon>-->
+    <!--          <span>很多東西的</span>-->
+    <!--        </template>-->
 
-    <el-menu-item index="/login">
-      <el-icon>
-        <icon-menu/>
-      </el-icon>
-      <span>我是登入頁面</span>
-    </el-menu-item>
-
-    <el-sub-menu index="/">
-      <template #title>
-        <el-icon>
-          <location/>
-        </el-icon>
-        <span>很多東西的</span>
-      </template>
-
-      <el-menu-item-group title="Group One">
-        <el-menu-item index="1-1">item one</el-menu-item>
-        <el-menu-item index="1-2">item two</el-menu-item>
-      </el-menu-item-group>
-      <el-menu-item-group title="Group Two">
-        <el-menu-item index="1-3">item three</el-menu-item>
-      </el-menu-item-group>
-      <el-sub-menu index="1-4">
-        <template #title>item four</template>
-        <el-menu-item index="1-4-1">item one</el-menu-item>
-      </el-sub-menu>
-    </el-sub-menu>
-
+    <!--        <el-menu-item-group title="Group One">-->
+    <!--          <el-menu-item index="1-1">item one</el-menu-item>-->
+    <!--          <el-menu-item index="1-2">item two</el-menu-item>-->
+    <!--        </el-menu-item-group>-->
+    <!--        <el-menu-item-group title="Group Two">-->
+    <!--          <el-menu-item index="1-3">item three</el-menu-item>-->
+    <!--        </el-menu-item-group>-->
+    <!--        <el-sub-menu index="1-4">-->
+    <!--          <template #title>item four</template>-->
+    <!--          <el-menu-item index="1-4-1">item one</el-menu-item>-->
+    <!--        </el-sub-menu>-->
+    <!--      </el-sub-menu>-->
 
   </el-menu>
 </template>
 
 <script setup lang="ts">
-import {House, Location, Menu as IconMenu, User} from '@element-plus/icons-vue'
 import router from "@/router";
 import {useTagStore} from "@/store/tag";
-import {computed, ref} from "vue";
+import {computed, onBeforeMount, reactive, ref} from "vue";
+import {useUserStore} from '@/store/user'
+import http from "@/util/request";
 
+const userStore = useUserStore()
 const tagStore = useTagStore()
+
+
+let menuInfo = reactive(<object>{
+  id: '',
+  label: '',
+  url: '',
+  icon: '',
+  parent: '',
+
+})
+
+// 掛載前執行
+onBeforeMount(() => {
+  console.log("/menu/" + userStore.roles)
+  getMenu()
+})
+
+// 獲取清單
+async function getMenu() {
+  const {data: res} = await http.get("/menu/" + userStore.roles)
+
+  if ('200' == res.code) {
+    Object.assign(menuInfo, res.data)
+  }
+}
 
 // 控制菜單折疊的屬性
 const menuCollapse = computed(() => {

@@ -6,6 +6,7 @@ export const useUserStore = defineStore('user', {
         return {
             id: '',     // 使用者識別碼
             name: '',   // 使用者名稱
+            roles: '',   // 角色權限
         }
     },
     actions: {},
@@ -16,6 +17,8 @@ export const useUserStore = defineStore('user', {
         strategies: [
             {storage: localStorage, paths: ['name']},
             {storage: localStorage, paths: ['id']},
+            {storage: localStorage, paths: ['roles']},
+
         ]
     }
 })
