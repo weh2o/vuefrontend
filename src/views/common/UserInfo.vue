@@ -52,7 +52,7 @@
               <div class="info-column">年齡:</div>
             </el-col>
             <el-col :span="12">
-              <div>{{ id }}</div>
+              <div>{{ age }}</div>
             </el-col>
           </el-row>
 

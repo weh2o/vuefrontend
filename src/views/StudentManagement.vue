@@ -93,10 +93,6 @@
             <el-input v-model="form.no" placeholder="請輸入學生證"/>
           </el-form-item>
 
-          <el-form-item prop="age" label="年齡">
-            <el-input v-model.number="form.age" placeholder="請輸入年齡"/>
-          </el-form-item>
-
           <el-form-item prop="birth" label="生日">
             <el-date-picker
                 v-model="form.birth"
