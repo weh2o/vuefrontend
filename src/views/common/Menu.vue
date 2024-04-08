@@ -64,7 +64,6 @@ let menuInfo = reactive(<object>{
 
 // 掛載前執行
 onBeforeMount(() => {
-  console.log("/menu/" + userStore.roles)
   getMenu()
 })
 

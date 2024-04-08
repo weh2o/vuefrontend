@@ -4,7 +4,7 @@
     <div class="l-content">
       <el-button :icon="Menu" size="small" @click="handleMenu"></el-button>
       <!-- 麵包屑 -->
-      <span class="text">首頁</span>
+      <span class="text">{{ title }}</span>
     </div>
     <!-- 右邊 -->
     <div class="r-content">
@@ -32,9 +32,20 @@ import {useTagStore} from "@/store/tag";
 import router from "@/router";
 import {delToken} from "@/util/tokenUtil"
 import {useUserStore} from '@/store/user'
+import {computed, onBeforeMount} from "vue";
 
 const userStore = useUserStore()
 const tagStore = useTagStore()
+
+
+const title = computed(() => {
+  return tagStore.title
+})
+
+// 掛載前執行
+onBeforeMount(() => {
+
+})
 
 // 左側導航欄收縮
 function handleMenu() {

@@ -1,12 +1,11 @@
 import {defineStore} from 'pinia'
 
-// 命名方式 useXxxStore
-// defineStore('自定義id', {...})
 export const useTagStore = defineStore('tag', {
     // 存放共享資料的地方
     state() {
         return {
             menuCollapse: false,
+            title: '',
         }
     },
     // 放函數的
@@ -17,5 +16,11 @@ export const useTagStore = defineStore('tag', {
     },
 
     // 對state共享數據進行計算，相當於組件中的computed計算屬性
-    getters: {}
+    getters: {},
+    persist: {
+        enabled: true,
+        strategies: [
+            {storage: localStorage, paths: ['title']},
+        ]
+    }
 })
