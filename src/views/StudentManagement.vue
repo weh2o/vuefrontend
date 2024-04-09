@@ -30,7 +30,7 @@
         <el-table-column prop="name" label="姓名" sortable width="180"/>
         <el-table-column prop="sex" label="性別" width="80" sortable>
           <template #default="scope">
-            <span>{{ scope.row.sex === '1' ? '男' : '女' }}</span>
+            <span>{{ scope.row.sex === '1' ? '男' : scope.row.sex === '2' ? '女' : '未知' }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="age" label="年齡" width="80" sortable/>
@@ -132,6 +132,7 @@
 import {inject, onBeforeMount, reactive, ref, toRaw} from 'vue'
 import {ElMessage, ElMessageBox, type FormInstance} from 'element-plus'
 import http from "@/util/request";
+import {validateMail} from "@/util/regExpUtil"
 
 
 const BASE_URL = '/student'
@@ -168,20 +169,6 @@ let form = reactive({
   mail: '',
   birth: '',
 })
-
-// 信箱正則
-const validateMail = (rule: any, value: any, callback: any) => {
-  const mailReg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/
-
-  if (value) {
-    if (mailReg.test(value)) {
-      callback()
-    } else {
-      callback(new Error('請輸入正確的信箱'))
-    }
-  }
-  callback()
-}
 
 // 用戶輸入驗證
 const rules = reactive({
