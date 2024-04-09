@@ -4,7 +4,7 @@
     <div class="l-content">
       <el-button :icon="Menu" size="small" @click="handleMenu"></el-button>
       <!-- 麵包屑 -->
-      <span class="text">{{ title }}</span>
+      <span class="text" style="font-size: 15px; font-weight: bold">{{ title }}</span>
     </div>
     <!-- 右邊 -->
     <div class="r-content">

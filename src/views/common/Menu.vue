@@ -5,7 +5,7 @@
       class="el-menu-vertical-demo"
       style="min-height: 100vh; border-right: none"
       router
-      active-text-color="#ffd04b"
+      active-text-color="#1e90ff"
       background-color="beige"
       :collapse="menuCollapse"
   >
