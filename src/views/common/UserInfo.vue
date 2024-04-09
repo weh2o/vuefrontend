@@ -16,93 +16,125 @@
           <el-row class="info-row" style="margin-bottom: 5px">
             <el-col :span="12"><h3>個人資料</h3></el-col>
             <el-col style="text-align: right" :span="12">
-              <el-button>修改資料</el-button>
+              <el-button type="info" @click="openModify">修改資料</el-button>
             </el-col>
           </el-row>
 
-          <el-row class="info-row">
-            <el-col :span="8">
-              <div class="info-column">性別:</div>
-            </el-col>
-            <el-col :span="12">
-              <div>{{ gender }}</div>
-            </el-col>
-          </el-row>
+          <el-form :model="userInfo" ref="userInfoRef" :rules="infoRules" :disabled="editDisable">
 
-          <el-row class="info-row">
-            <el-col :span="8">
-              <div class="info-column">{{ noName }}</div>
-            </el-col>
-            <el-col :span="12">
-              <div>{{ no }}</div>
-            </el-col>
-          </el-row>
+            <el-form-item prop="name" v-if="showModifyNameText">
+              <el-col :span="4">
+                <div class="info-column">姓名:</div>
+              </el-col>
+              <el-col :span="14">
+                <el-input v-model="name" placeholder=""/>
+              </el-col>
+            </el-form-item>
 
-          <el-row class="info-row">
-            <el-col :span="8">
-              <div class="info-column">生日:</div>
-            </el-col>
-            <el-col :span="12">
-              <div>{{ birth }}</div>
-            </el-col>
-          </el-row>
+            <!-- 性別-->
+            <el-form-item prop="gender">
+              <el-col :span="4">
+                <div class="info-column">性別:</div>
+              </el-col>
+              <el-col :span="14">
+                <el-select v-model="sex" placeholder="請選擇性別">
+                  <el-option label="男" value="1"/>
+                  <el-option label="女" value="2"/>
+                  <el-option label="未知" value="3"/>
+                </el-select>
+              </el-col>
+            </el-form-item>
 
-          <el-row class="info-row">
-            <el-col :span="8">
-              <div class="info-column">年齡:</div>
-            </el-col>
-            <el-col :span="12">
-              <div>{{ age }}</div>
-            </el-col>
-          </el-row>
+            <!-- xx證 -->
+            <el-form-item prop="gender" v-if="isShowNo">
+              <el-col :span="4">
+                <div class="info-column">{{ noName }}</div>
+              </el-col>
+              <el-col :span="14">
+                <el-input :readonly="isEditNo" v-model="no" placeholder=""/>
+              </el-col>
+            </el-form-item>
 
-          <el-row class="info-row">
-            <el-col :span="8">
-              <div class="info-column">信箱:</div>
-            </el-col>
-            <el-col :span="12">
-              <div>{{ mail }}</div>
-            </el-col>
-          </el-row>
+            <el-form-item prop="birth">
+              <el-col :span="4">
+                <div class="info-column">生日:</div>
+              </el-col>
+              <el-col :span="14">
+                <el-date-picker
+                    v-model="birth"
+                    type="date"
+                    placeholder="請選擇日期"
+                />
+              </el-col>
+            </el-form-item>
 
-          <el-row class="info-row">
-            <el-col :span="8">
-              <div class="info-column">電話:</div>
-            </el-col>
-            <el-col :span="12">
-              <div>{{ phone }}</div>
-            </el-col>
-          </el-row>
+            <el-form-item prop="age">
+              <el-col :span="4">
+                <div class="info-column">年齡:</div>
+              </el-col>
+              <el-col :span="14">
+                <el-input readonly v-model="age" placeholder=""/>
+              </el-col>
+            </el-form-item>
 
-          <el-row class="info-row">
-            <el-col :span="8">
-              <div class="info-column">地址:</div>
-            </el-col>
-            <el-col :span="12">
-              <div>{{ address }}</div>
-            </el-col>
-          </el-row>
+            <el-form-item prop="mail">
+              <el-col :span="4">
+                <div class="info-column">信箱:</div>
+              </el-col>
+              <el-col :span="14">
+                <el-input v-model="mail" placeholder=""/>
+              </el-col>
+            </el-form-item>
+
+            <el-form-item prop="phone">
+              <el-col :span="4">
+                <div class="info-column">電話:</div>
+              </el-col>
+              <el-col :span="14">
+                <el-input v-model="phone" placeholder=""/>
+              </el-col>
+            </el-form-item>
+
+            <el-form-item prop="address">
+              <el-col :span="4">
+                <div class="info-column">地址:</div>
+              </el-col>
+              <el-col :span="14">
+                <el-input v-model="address" placeholder=""/>
+              </el-col>
+            </el-form-item>
 
 
+            <el-row class="info-row" style="margin-bottom: 5px" v-if="showSubButton">
+              <el-col :span="12"></el-col>
+              <el-col style="text-align: right" :span="12">
+                <el-button @click="closeModify">取消</el-button>
+                <el-button type="primary" @click="changeInfo(userInfoRef)">
+                  確定
+                </el-button>
+              </el-col>
+            </el-row>
+
+          </el-form>
         </div>
 
         <div>
           <h3 style="margin-bottom: 10px;">更改密碼</h3>
-          <el-form :model="form" ref="formRef" :rules="rules">
+          <el-form :model="pwdForm" ref="pwdFormRef" :rules="pwdRules">
             <div style="width: 80%">
               <el-form-item prop="oldPassword">
-                <el-input prefix-icon="Lock" v-model="form.oldPassword" show-password placeholder="舊密碼"/>
+                <el-input prefix-icon="Lock" v-model="pwdForm.oldPassword" show-password placeholder="舊密碼"/>
               </el-form-item>
               <el-form-item prop="newPassword">
-                <el-input prefix-icon="Lock" v-model="form.newPassword" show-password placeholder="新密碼"/>
+                <el-input prefix-icon="Lock" v-model="pwdForm.newPassword" show-password placeholder="新密碼"/>
               </el-form-item>
               <el-form-item prop="newPasswordCheck">
-                <el-input prefix-icon="Lock" v-model="form.newPasswordCheck" show-password
+                <el-input prefix-icon="Lock" v-model="pwdForm.newPasswordCheck" show-password
                           placeholder="再次輸入新密碼"/>
               </el-form-item>
             </div>
             <el-form-item style="text-align: right">
-              <el-button type="primary" style="width: 40%" @click="changePsw(formRef)">修改密碼</el-button>
+              <el-button type="primary" style="width: 40%" @click="changeInfo(pwdFormRef, 'pwd')">修改密碼</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -113,10 +145,19 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onBeforeMount, reactive, ref, toRefs} from 'vue'
+import {computed, inject, onBeforeMount, reactive, ref, toRefs} from 'vue'
 import http from "@/util/request";
 import {ElMessage, type FormInstance} from "element-plus";
+import {validateMail} from "@/util/regExpUtil"
 
+
+// 掛載前執行
+onBeforeMount(() => {
+  getInfo()
+})
+
+// 刷新頁面用
+const reload: any = inject("reload");
 
 const noName = computed(() => {
   if ('3' == identity.value) {
@@ -134,19 +175,35 @@ const identityStr = computed(() => {
   if ('2' == identity.value) {
     return '老師'
   }
-})
-
-const gender = computed(() => {
-  if ('1' == sex.value) {
-    return '男'
-  } else if ('0' == sex.value) {
-    return '女'
-  } else {
-    return '未知'
+  if ('1' == identity.value) {
+    return '系統管理員'
   }
 })
 
-const formRef = ref()
+const isShowNo = computed(() => {
+  if ('3' == identity.value) {    // 學生
+    return true
+  } else if ('2' == identity.value) {  // 老師
+    return true
+  } else {
+    return false
+  }
+})
+// xx證(編號)是否可編輯， true: 只讀, false: 可修改
+const isEditNo = computed(() => {
+  if ('2' == identity.value) {    // 老師
+    return true
+  } else {
+    return false
+  }
+})
+
+const userInfoRef = ref()
+const pwdFormRef = ref()
+
+let showSubButton = ref(false)
+let showModifyNameText = ref(false)
+let editDisable = ref(true)
 
 let userInfo = reactive({
   id: '',
@@ -164,7 +221,7 @@ let userInfo = reactive({
 
 let {name, age, sex, no, phone, mail, birth, lastLoginTime, address, identity, id} = toRefs(userInfo)
 
-const form = reactive({
+const pwdForm = reactive({
   oldPassword: '',
   newPassword: '',
   newPasswordCheck: '',
@@ -175,7 +232,7 @@ const validateNewPass = (rule: any, value: any, callback: any) => {
   if (value === '') {
     callback(new Error('請輸入新密碼'))
   } else {
-    if (form.newPasswordCheck !== form.newPassword) {
+    if (pwdForm.newPasswordCheck !== pwdForm.newPassword) {
       callback(new Error('新密碼輸入不一致'))
       return
     }
@@ -184,16 +241,15 @@ const validateNewPass = (rule: any, value: any, callback: any) => {
 }
 
 // 更改密碼驗證
-const rules = reactive({
+const pwdRules = reactive({
   oldPassword: [{required: true, message: '請輸入密碼', trigger: 'blur'},],
   newPassword: [{required: true, message: '請輸入新密碼', trigger: 'blur'},],
   newPasswordCheck: [{validator: validateNewPass, trigger: 'blur'},],
 })
 
-
-// 掛載前執行
-onBeforeMount(() => {
-  getInfo()
+// 使用者資料驗證
+const infoRules = reactive({
+  mail: [{validator: validateMail, trigger: 'blur'},],
 })
 
 // 獲取使用者資料
@@ -204,25 +260,52 @@ async function getInfo() {
 }
 
 // 修改密碼事件
-async function changePsw(formEl: FormInstance | undefined) {
+async function changeInfo(formEl: FormInstance | undefined, type?: string) {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      modifyPassword()
+      modifyPassword(type)
     }
   })
 }
 
-async function modifyPassword() {
-  const jsonData = JSON.stringify(form);
+// 修改密碼函數
+async function modifyPassword(type?: string) {
+
+  let jsonData = ''
+  if (type == 'pwd') {
+    jsonData = JSON.stringify(pwdForm)
+  } else {
+    jsonData = JSON.stringify(userInfo);
+  }
+
   const {data: res} = await http.patch('/user/' + id.value, jsonData)
   if ('200' == res.code) {
     ElMessage.success(res.msg)
   }
-  // 清空資料
-  formRef.value.resetFields()
+
+  if (type == 'pwd') {
+    // 清空資料
+    pwdFormRef.value.resetFields()
+  }
+  reload()
 }
 
+// 開啟修改個人資料
+function openModify() {
+  showSubButton.value = true
+  editDisable.value = false
+  showModifyNameText.value = true
+
+}
+
+// 關閉修改個人資料
+function closeModify() {
+  showSubButton.value = false
+  editDisable.value = true
+  showModifyNameText.value = false
+  reload()
+}
 
 </script>
 
