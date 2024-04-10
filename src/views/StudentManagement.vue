@@ -86,6 +86,7 @@
             <el-select v-model="form.sex" placeholder="請選擇性別">
               <el-option label="男" value="1"/>
               <el-option label="女" value="2"/>
+              <el-option label="未知" value="3"/>
             </el-select>
           </el-form-item>
 
@@ -115,7 +116,6 @@
         <template #footer>
           <div class="dialog-footer">
             <el-button @click="dialogVisible = false">取消</el-button>
-            <!--            <el-button type="primary" @click="handleAdd">-->
             <el-button type="primary" @click="addStuValidate(formRef)">
               確定
             </el-button>
@@ -124,15 +124,15 @@
       </el-dialog>
     </div>
 
-
   </div>
 </template>
 
 <script setup lang="ts">
-import {inject, onBeforeMount, reactive, ref, toRaw} from 'vue'
+import {inject, onBeforeMount, reactive, ref, toRaw, watch} from 'vue'
 import {ElMessage, ElMessageBox, type FormInstance} from 'element-plus'
 import http from "@/util/request";
 import {validateMail} from "@/util/regExpUtil"
+import UsePage from "@/hooks/usePage";
 
 
 const BASE_URL = '/student'
@@ -148,13 +148,25 @@ let searchForm = reactive({
   nameOrNo: '',
 })
 
-// 資料總數【分頁用】
-let total = ref(0);
-let pageSize = ref(5)
-let nowPage = ref(1)
-let sortProp = ref("")
-let sortOrder = ref("")
+// 分頁相關
+const {total, nowPage, pageSize, sortProp, sortOrder, handlePage} = UsePage()
 
+// 監視當前頁變化，查詢資料
+watch(nowPage,(newValue, oldValue) =>{
+  findAll()
+})
+
+/**
+ * 分頁排序
+ * @param sort proxy物件
+ *  裡面有 prop 排序屬性
+ *        order 排序規則
+ */
+function sortChange(sort: any) {
+  sortProp.value = sort.prop
+  sortOrder.value = sort.order
+  findAll()
+}
 
 // 表單物件
 const formRef = ref()
@@ -317,26 +329,6 @@ const deleteStu = (id: string) => {
 // 刪除按鈕觸發的函數
 const handleDelete = (index: number, row: any) => {
   deleteStu(row.id)
-}
-/**
- * 分頁
- * @param val 當前點擊的分頁
- */
-const handlePage = ((val: any) => {
-  nowPage.value = val
-  findAll()
-})
-
-/**
- * 分頁排序
- * @param sort proxy物件
- *  裡面有 prop 排序屬性
- *        order 排序規則
- */
-function sortChange(sort: any) {
-  sortProp.value = sort.prop
-  sortOrder.value = sort.order
-  findAll()
 }
 
 // 查詢事件
