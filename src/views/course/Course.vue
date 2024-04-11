@@ -3,7 +3,7 @@
 
 
     <div class="manage-header">
-      <el-button v-if="showAddBtn" class="add-button" type="primary" plain @click="courseDialog.addDialogPop()">
+      <el-button v-if="showAddBtn" class="add-button" type="primary" plain @click="courseDialog.dialogPop()">
         新增
       </el-button>
 
@@ -52,7 +52,7 @@
             <!-- 管理員身分: 全部顯示。 老師身分: 只顯示屬於自己的  -->
             <span v-if="userStore.identity == userStore.identityType.admin || teacherId == scope.row.teacherId"
                   style="margin-left: 15px">
-            <el-button size="small" type="warning" @click="handleEdit(scope.$index, scope.row)">
+            <el-button size="small" type="warning" @click="courseDialog.dialogPop(scope.$index, scope.row)">
               編輯
             </el-button>
 
@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
 
-import {computed, inject, onBeforeMount, provide, reactive, ref, watch} from 'vue'
+import {computed, inject, onBeforeMount, provide, reactive, ref, toRaw, watch} from 'vue'
 import http from "@/util/request"
 import UsePage from "@/hooks/usePage"
 import {useUserStore} from "@/store/user"

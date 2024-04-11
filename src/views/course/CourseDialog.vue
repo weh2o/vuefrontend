@@ -12,8 +12,8 @@
         </el-form-item>
 
         <div v-if="showTeacherOption">
-          <el-form-item prop="teacher" label="老師">
-            <el-select v-model="form.teacher" placeholder="請選擇老師">
+          <el-form-item prop="teacherId" label="老師">
+            <el-select v-model="form.teacherId" placeholder="請選擇老師">
               <div v-for="item in teachersData" :key="item.id">
                 <el-option :label="item.name" :value="item.id"/>
               </div>
@@ -42,6 +42,7 @@
               v-model="form.startDate"
               type="date"
               placeholder="課程開始日期"
+              format="YYYY-MM-DD"
               value-format="YYYY-MM-DD"
               :disabled-date="disabledDateStart"
           />
@@ -51,6 +52,7 @@
               v-model="form.endDate"
               type="date"
               placeholder="課程結束日期"
+              format="YYYY-MM-DD"
               value-format="YYYY-MM-DD"
               :disabled-date="disabledDateEnd"
           />
@@ -82,7 +84,7 @@
         <el-form-item prop="location" label="上課地點">
           <el-select v-model="form.location" placeholder="請選擇地點">
             <div v-for="item in locationData" :key="item.id">
-              <el-option :label="item.nameZh" :value="item.id"/>
+              <el-option v-if="item.name != 'OTHER'" :label="item.nameZh" :value="item.id"/>
             </div>
             <el-option label="其他" value="OTHER"/>
           </el-select>
@@ -105,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, inject, nextTick, onBeforeMount, reactive, ref, watch, watchEffect} from 'vue'
+import {computed, inject, nextTick, onBeforeMount, reactive, ref, watch, watchEffect, toRaw} from 'vue'
 import {ElMessage, ElMessageBox, type FormInstance} from 'element-plus'
 import http from "@/util/request";
 import {useUserStore} from "@/store/user"
@@ -115,8 +117,8 @@ const userStore: any = useUserStore()
 // 掛載前執行
 onBeforeMount(() => {
   // 身分是老師時，自動給予老師ID
-  if (userStore.identity == userStore.identityType.teacher) {
-    form.teacher = userStore.id
+  if (userStore.isTeacher) {
+    form.teacherId = userStore.id
   }
 })
 
@@ -136,21 +138,24 @@ const dialogVisible = ref(false)
 let dialogTitle = ref('')
 let dialogConfirm = ref('')
 
-// 新增框彈出
-const addDialogPop = (() => {
-  dialogTitle.value = '新增'
-  dialogConfirm.value = '新增'
+// 新增(修改)框彈出
+const dialogPop = (( index: number, row: any ) => {
+  if (row){
+    dialogTitle.value = '修改'
+    dialogConfirm.value = '修改'
+    form = reactive(JSON.parse(JSON.stringify(toRaw(row))));
+  }else {
+    dialogTitle.value = '新增'
+    dialogConfirm.value = '新增'
+  }
   getLocation()
-  getTeachers()
-  dialogVisible.value = true
-})
-// 修改框 彈出
-const updateDialogPop = (() => {
-  dialogTitle.value = '修改'
-  dialogConfirm.value = '修改'
-  dialogVisible.value = true
-})
 
+  if (userStore.isAdmin){
+    getTeachers()
+  }
+
+  dialogVisible.value = true
+})
 
 // 關閉提示方法
 const handleClose = (done: () => void) => {
@@ -187,8 +192,9 @@ const formRef = ref()
 
 // 表單資料
 let form = reactive({
+  id: '',
   name: '',
-  teacher: '',
+  teacherId: '',
   maxCount: '',
   deadline: '',
   startDate: '',
@@ -202,8 +208,8 @@ let form = reactive({
 // 清除驗證錯誤提示監視
 watchEffect(() => {
   // 清除「老師」欄位驗證提示 (內容為空 且 是管理員身分)
-  if (form.teacher != '' && userStore.identity == userStore.identityType.admin){
-    nextTick(formRef.value.clearValidate('teacher'))
+  if (form.teacherId != '' && userStore.identity == userStore.identityType.admin){
+    nextTick(formRef.value.clearValidate('teacherId'))
   }
 
   // 清除「地點」欄位驗證提示
@@ -213,7 +219,6 @@ watchEffect(() => {
 
   // 清除「上課時間」欄位驗證提示
   if (form.startTime != '' && form.endTime != '') {
-    console.log('都有選了')
     nextTick(formRef.value.clearValidate(['courseTime']))
   }
 })
@@ -247,7 +252,7 @@ const validateCourseTime = (rule: any, value: any, callback: any) => {
 // 表單驗證規則
 const courseRules = reactive({
   name: [{required: true, message: '請輸入課程名稱', trigger: 'blur'}],
-  teacher: [{required: true, message: '請選擇老師', trigger: 'blur'}],
+  teacherId: [{required: true, message: '請選擇老師', trigger: 'blur'}],
   maxCount: [{required: true, message: '請輸入課程人數', trigger: 'blur'}],
   deadline: [{required: true, message: '請選擇報名截止日期', trigger: 'blur'}],
   courseDate: [{validator: validateCourseDate, trigger: 'blur'}],
@@ -263,6 +268,11 @@ let teachersData: any = ref([])
 
 // 設置結束日期
 const disabledDateEnd = (time: Date) => {
+
+  // 不能是今天以前
+  if (form.startDate == ''){
+    return time.getTime() <= Date.now()
+  }
   // 結束日期在開始日期之後
   return time.getTime() < new Date(form.startDate).getTime()
 }
@@ -341,7 +351,7 @@ async function getTeachers() {
 
 
 // 對外曝露組件內容
-defineExpose({addDialogPop})
+defineExpose({dialogPop })
 
 </script>
 

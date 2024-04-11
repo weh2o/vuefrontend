@@ -39,7 +39,16 @@ export const useUserStore = defineStore('user', {
             return false
         }
     },
-    getters: {},
+    getters: {
+        // 是否為管理員身分
+        isAdmin(){
+            return this.identity == this.identityType.admin
+        },
+        // 是否為老師身分
+        isTeacher(){
+            return this.identity == this.identityType.teacher
+        }
+    },
     // 持久化
     persist: {
         enabled: true,
