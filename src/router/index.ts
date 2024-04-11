@@ -45,6 +45,14 @@ const router = createRouter({
                     },
                 },
                 {
+                    path: 'teacherManagement',
+                    name: 'TeacherManagement',
+                    component: () => import('@/views/teacher/TeacherManagement.vue'),
+                    meta: {
+                        title: '教師管理',
+                    },
+                },
+                {
                     path: 'course',
                     name: 'Course',
                     component: () => import('@/views/course/Course.vue'),
