@@ -5,7 +5,7 @@ export default function () {
     // 分頁總數
     let total = ref(0);
     // 當前分頁顯示資料數量
-    let pageSize = ref(5)
+    let pageSize = ref(10)
     // 當前分頁頁數
     let nowPage = ref(1)
     // 排序的屬性
