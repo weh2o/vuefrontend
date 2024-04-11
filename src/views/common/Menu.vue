@@ -49,8 +49,8 @@ import {computed, onBeforeMount, reactive, ref} from "vue";
 import {useUserStore} from '@/store/user'
 import http from "@/util/request";
 
-const userStore = useUserStore()
-const tagStore = useTagStore()
+const userStore: any = useUserStore()
+const tagStore: any = useTagStore()
 
 
 let menuInfo = reactive(<object>{

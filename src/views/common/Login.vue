@@ -50,7 +50,7 @@ import {setToken} from "@/util/tokenUtil"
 import http from "@/util/request";
 import {useUserStore} from '@/store/user'
 
-const userStore = useUserStore()
+const userStore: any = useUserStore()
 
 // 刷新頁面用
 const reload: any = inject("reload");
@@ -107,7 +107,8 @@ async function loginHandle() {
     userStore.$patch({
       name: res.data.name,
       id: res.data.id,
-      roles: res.data.roles
+      roles: res.data.roles,
+      identity: res.data.identity
     })
     router.push({name: 'Home'})
   }
