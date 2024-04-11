@@ -30,28 +30,39 @@
       >
         <el-table-column prop="name" label="課程名稱" sortable/>
         <el-table-column prop="teacher" label="老師" width="100" sortable/>
-        <el-table-column prop="count" label="學生人數" width="110" sortable/>
-        <el-table-column prop="maxCount" label="課程總人數" width="120" sortable/>
-        <el-table-column prop="deadline" label="報名截止日" sortable/>
-        <el-table-column prop="courseDate" label="課程時間" sortable/>
-        <el-table-column prop="courseTime" label="上課時間" sortable/>
+        <el-table-column prop="count" label="人數" width="100" sortable/>
+        <el-table-column prop="maxCount" label="總人數" width="100" sortable/>
+        <el-table-column prop="deadline" label="報名截止日" width="120" sortable/>
+        <el-table-column prop="courseDate" label="課程時間" width="180" sortable/>
+        <el-table-column prop="courseTime" label="上課時間" width="120" sortable/>
         <el-table-column prop="location" label="上課地點" sortable/>
 
 
-        <!--        <el-table-column label="操作">-->
-        <!--          <template #default="scope">-->
-        <!--            <el-button size="small" type="info" @click="handleEdit(scope.$index, scope.row)"-->
-        <!--            >編輯-->
-        <!--            </el-button>-->
+        <el-table-column label="操作">
+          <template #default="scope">
 
-        <!--            <el-button-->
-        <!--                size="small"-->
-        <!--                type="danger"-->
+            <el-button size="small" type="info">
+              詳細內容
+            </el-button>
 
-        <!--            >刪除-->
-        <!--            </el-button>-->
-        <!--          </template>-->
-        <!--        </el-table-column>-->
+            <el-button size="small" type="success">
+              報名
+            </el-button>
+
+            <!-- 管理員身分: 全部顯示。 老師身分: 只顯示屬於自己的  -->
+            <span v-if="userStore.identity == userStore.identityType.admin || teacherId == scope.row.teacherId"
+                  style="margin-left: 15px">
+            <el-button size="small" type="warning" @click="handleEdit(scope.$index, scope.row)">
+              編輯
+            </el-button>
+
+            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">
+              刪除
+            </el-button>
+            </span>
+
+          </template>
+        </el-table-column>
 
       </el-table>
 
@@ -79,6 +90,7 @@ import http from "@/util/request"
 import UsePage from "@/hooks/usePage"
 import {useUserStore} from "@/store/user"
 import CourseDialog from "@/views/course/CourseDialog.vue"
+import {ElMessage, ElMessageBox} from 'element-plus'
 
 
 // 掛載前執行
@@ -86,7 +98,7 @@ onBeforeMount(() => {
   findAll()
 })
 
-const userStore = useUserStore()
+const userStore: any = useUserStore()
 
 const BASE_URL = '/course'
 
@@ -119,13 +131,21 @@ let tableData: any = ref([])
 // CourseDialog子組件
 let courseDialog = ref()
 
+// 顯示「新增按鈕」判斷的屬性
 let showAddBtn = computed(() => {
-  const x = userStore.roleType
+  const roleType = userStore.roleType
   let arr = [
-    x.admin,
-    x.teacher,
+    roleType.admin,
+    roleType.teacher,
   ]
   return userStore.isPass(arr)
+})
+
+// 老師身分顯示「編輯、刪除按鈕」判斷的屬性
+let teacherId = computed(() => {
+  if (userStore.identity == userStore.identityType.teacher) {
+    return userStore.id
+  }
 })
 
 
@@ -156,6 +176,26 @@ let searchForm = reactive({
 // 查詢函數
 function search() {
   findAll()
+}
+
+// 刪除處理
+const handleDelete = (index: number, row: any) => {
+  ElMessageBox.confirm('確定要刪除嗎?', {
+    confirmButtonText: '刪除',
+    cancelButtonText: '保留',
+  }).then(() => {
+    removeCourse(row.id)
+  })
+}
+
+// 刪除axios函數
+async function removeCourse(id: string) {
+  const {data: res} = await http.delete(BASE_URL + '/' + id)
+  if ('200' == res.code) {
+    ElMessage.success(res.msg)
+    // 刷新頁面
+    reload()
+  }
 }
 
 // 向子組件傳遞資料
