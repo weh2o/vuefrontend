@@ -6,6 +6,12 @@ export const useUserStore = defineStore('user', {
         return {
             id: '',         // 使用者識別碼
             name: '',       // 使用者名稱
+            identity: '',   // 使用者身分
+            identityType: {     // 身分常量
+                admin: '1',
+                teacher: '2',
+                student: '3',
+            },
             roles: '',      // 使用者角色權限
             roleType: {     // 角色權限常量
                 admin: 'ADMIN',
@@ -38,9 +44,12 @@ export const useUserStore = defineStore('user', {
     persist: {
         enabled: true,
         strategies: [
-            {storage: localStorage, paths: ['name']},
             {storage: localStorage, paths: ['id']},
+            {storage: localStorage, paths: ['name']},
+            {storage: localStorage, paths: ['identity']},
+            {storage: localStorage, paths: ['identityType']},
             {storage: localStorage, paths: ['roles']},
+            {storage: localStorage, paths: ['roleType']},
 
         ]
     }
