@@ -45,7 +45,9 @@
             >編輯
             </el-button>
 
+            <!-- 只有管理員可以刪除學生資料 -->
             <el-button
+                v-if="userStore.isAdmin"
                 size="small"
                 type="danger"
                 @click="handleDelete(scope.$index, scope.row)"
@@ -133,6 +135,9 @@ import {ElMessage, ElMessageBox, type FormInstance} from 'element-plus'
 import http from "@/util/request";
 import {validateMail} from "@/util/regExpUtil"
 import UsePage from "@/hooks/usePage";
+import {useUserStore} from "@/store/user";
+
+const userStore:any = useUserStore();
 
 
 const BASE_URL = '/student'
