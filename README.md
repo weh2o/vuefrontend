@@ -1,33 +1,22 @@
-# vuefrontend
+# 使用技術
 
-This template should help get you started developing with Vue 3 in Vite.
+- Vue 3.4.21
+- Element-plus ^2.6.2
+- pinia ^2.1.7
 
-## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-## Type Support for `.vue` Imports in TS
+## 說明
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+校園系統【開發中】
 
-## Customize configuration
+此為後端人員初學Vue的作品，請配合 [JAVA後端作品](https://github.com/weh2o/vuebackend)使用。
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
 
-## Project Setup
 
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
+## 啟動專案
 
 ```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
