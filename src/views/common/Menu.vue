@@ -52,15 +52,8 @@ import http from "@/util/request";
 const userStore: any = useUserStore()
 const tagStore: any = useTagStore()
 
-
-let menuInfo = reactive(<object>{
-  id: '',
-  label: '',
-  url: '',
-  icon: '',
-  parent: '',
-
-})
+// 菜單資料
+let menuInfo: any = ref([])
 
 // 掛載前執行
 onBeforeMount(() => {
@@ -72,7 +65,7 @@ async function getMenu() {
   const {data: res} = await http.get("/menu/" + userStore.roles)
 
   if ('200' == res.code) {
-    Object.assign(menuInfo, res.data)
+    menuInfo.value = res.data
   }
 }
 
@@ -80,10 +73,6 @@ async function getMenu() {
 const menuCollapse = computed(() => {
   return tagStore.menuCollapse
 })
-
-function giveTitle() {
-  const home = ref()
-}
 
 </script>
 
