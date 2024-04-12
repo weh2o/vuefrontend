@@ -45,18 +45,7 @@
               詳細內容
             </el-button>
 
-            <!--
-              報名、已報名 顯示規則
-              scope.row.isSignUp 是否報名
-               - 0 尚未報名
-               - 1 已報名
-
-               scope.row.isSelf
-               - 0 非課程老師
-               - 1 課程老師本人
-            -->
-            <!-- 尚未報名 -->
-            <el-button v-if="scope.row.isSignUp == '0' && scope.row.isSelf == '0'"
+            <el-button v-if="isShowSignUpBtn(scope.row)"
                        size="small" type="success"
                        @click="signUpPop(scope.row)"
             >
@@ -64,7 +53,8 @@
             </el-button>
 
             <!-- 已報名 -->
-            <el-button v-if="scope.row.isSignUp == '1' && scope.row.isSelf == '0'"
+            <!--            <el-button v-if="scope.row.isSignUp == '1' && scope.row.isSelf == '0'"-->
+            <el-button v-if="isShowSignedUpBtn(scope.row)"
                        size="small" type="success"
                        disabled
             >
@@ -76,7 +66,7 @@
                   2. 老師身分: 只顯示屬於自己的
                   3. 學生身分: 皆不顯示
               -->
-            <span v-if="userStore.identity == userStore.identityType.admin || teacherId == scope.row.teacherId"
+            <span v-if="userStore.isAdmin || teacherId == scope.row.teacherId"
                   style="margin-left: 15px">
             <el-button size="small" type="warning" @click="courseDialog.dialogPop(scope.$index, scope.row)">
               編輯
@@ -237,6 +227,7 @@ function signUpPop(data: any) {
   })
 }
 
+// 報名 axios 函數
 async function signUp(courseId: string) {
   let url = BASE_URL + '/' + courseId + '/signUp/' + userStore.id
   const {data: res} = await http.patch(url)
@@ -244,6 +235,68 @@ async function signUp(courseId: string) {
     ElMessage.success(res.msg)
     reload()
   }
+}
+
+
+/*
+  是否展示「報名」按鈕
+  <br/>
+  規則:
+  <br/>
+  scope.row.isSignUp 是否報名
+   - 0 尚未報名
+   - 1 已報名
+   <br/>
+
+   scope.row.isSelf 課程是否屬於本人
+   - 0 不是
+   - 1 是
+ */
+function isShowSignUpBtn(row: any) {
+  // 已經報名
+  if (row.isSignUp == '1') {
+    return false
+  }
+  // 課程是自己的
+  if (row.isSelf == '1') {
+    return false
+  }
+  // 超過報名截止日期
+  const deadline = new Date(row.deadline)
+  const currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+  if (deadline < currentDate) {
+    return false
+  }
+  // 到此顯示按鈕
+  return true
+}
+
+/*
+  是否展示「已報名」按鈕
+  <br/>
+  規則:
+  <br/>
+  scope.row.isSignUp 是否報名
+   - 0 尚未報名
+   - 1 已報名
+   <br/>
+
+   scope.row.isSelf 課程是否屬於本人
+   - 0 不是
+   - 1 是
+ */
+function isShowSignedUpBtn(row: any) {
+
+  // 還沒報名
+  if (row.isSignUp == '0') {
+    return false
+  }
+  // 課程是自己的
+  if (row.isSelf == '1') {
+    return false
+  }
+  return true
 }
 
 
