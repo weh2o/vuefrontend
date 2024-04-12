@@ -149,6 +149,7 @@ import {computed, inject, onBeforeMount, reactive, ref, toRefs} from 'vue'
 import http from "@/util/request";
 import {ElMessage, type FormInstance} from "element-plus";
 import {validateMail} from "@/util/regExpUtil"
+import {useUserStore} from "@/store/user";
 
 
 // 掛載前執行
@@ -158,6 +159,8 @@ onBeforeMount(() => {
 
 // 刷新頁面用
 const reload: any = inject("reload");
+
+const userStore: any = useUserStore();
 
 const noName = computed(() => {
   if ('3' == identity.value) {
@@ -264,13 +267,13 @@ async function changeInfo(formEl: FormInstance | undefined, type?: string) {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      modifyPassword(type)
+      modifyUserInfo(type)
     }
   })
 }
 
-// 修改密碼函數
-async function modifyPassword(type?: string) {
+// 修改axios函數
+async function modifyUserInfo(type?: string) {
 
   let jsonData = ''
   if (type == 'pwd') {
@@ -282,6 +285,7 @@ async function modifyPassword(type?: string) {
   const {data: res} = await http.patch('/user/' + id.value, jsonData)
   if ('200' == res.code) {
     ElMessage.success(res.msg)
+    userStore.name = userInfo.name
   }
 
   if (type == 'pwd') {
