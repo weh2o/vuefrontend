@@ -45,11 +45,37 @@
               詳細內容
             </el-button>
 
-            <el-button size="small" type="success">
+            <!--
+              報名、已報名 顯示規則
+              scope.row.isSignUp 是否報名
+               - 0 尚未報名
+               - 1 已報名
+
+               scope.row.isSelf
+               - 0 非課程老師
+               - 1 課程老師本人
+            -->
+            <!-- 尚未報名 -->
+            <el-button v-if="scope.row.isSignUp == '0' && scope.row.isSelf == '0'"
+                       size="small" type="success"
+                       @click="signUpPop(scope.row)"
+            >
               報名
             </el-button>
 
-            <!-- 管理員身分: 全部顯示。 老師身分: 只顯示屬於自己的  -->
+            <!-- 已報名 -->
+            <el-button v-if="scope.row.isSignUp == '1' && scope.row.isSelf == '0'"
+                       size="small" type="success"
+                       disabled
+            >
+              已報名
+            </el-button>
+
+            <!-- 編輯、刪除按鈕:
+                  1. 管理員身分: 全部顯示。
+                  2. 老師身分: 只顯示屬於自己的
+                  3. 學生身分: 皆不顯示
+              -->
             <span v-if="userStore.identity == userStore.identityType.admin || teacherId == scope.row.teacherId"
                   style="margin-left: 15px">
             <el-button size="small" type="warning" @click="courseDialog.dialogPop(scope.$index, scope.row)">
@@ -85,7 +111,7 @@
 
 <script setup lang="ts">
 
-import {computed, inject, onBeforeMount, provide, reactive, ref, toRaw, watch} from 'vue'
+import {computed, inject, onBeforeMount, provide, reactive, ref, watch} from 'vue'
 import http from "@/util/request"
 import UsePage from "@/hooks/usePage"
 import {useUserStore} from "@/store/user"
@@ -158,6 +184,7 @@ async function findAll() {
           pageSize: pageSize.value,
           prop: sortProp.value,
           order: sortOrder.value,
+          userId: userStore.id,
           courseNameOrTeacher: searchForm.courseNameOrTeacher
         }
       }
@@ -197,6 +224,28 @@ async function removeCourse(id: string) {
     reload()
   }
 }
+
+// 報名確認框
+function signUpPop(data: any) {
+  const courseName = data.name
+  const courseId = data.id
+  ElMessageBox.confirm('確定要報名 ' + courseName + ' 嗎?', {
+    confirmButtonText: '報名',
+    cancelButtonText: '再想想',
+  }).then(() => {
+    signUp(courseId)
+  })
+}
+
+async function signUp(courseId: string) {
+  let url = BASE_URL + '/' + courseId + '/signUp/' + userStore.id
+  const {data: res} = await http.patch(url)
+  if ('200' == res.code) {
+    ElMessage.success(res.msg)
+    reload()
+  }
+}
+
 
 // 向子組件傳遞資料
 provide('COURSE_BASE_URL', BASE_URL)
