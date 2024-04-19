@@ -20,6 +20,10 @@
           <el-input prefix-icon="Lock" show-password v-model="data.form.password" placeholder="密碼"/>
         </el-form-item>
 
+        <div style="margin-bottom: 5px">
+          <el-checkbox v-model="data.form.rememberMe" label="記住我" size="default"/>
+        </div>
+
         <el-form-item v-if="pageStatus" prop="no">
           <div>
             <div>{{ noTextInfo }}</div>
@@ -31,10 +35,20 @@
           <el-button type="primary" style="width: 100%" @click="subForm(formRef)">{{ btnName }}</el-button>
         </el-form-item>
 
-        <div style="margin-top: 30px; text-align: right">
-          <span style="color: #999999">{{ pageStatus ? loginInfo : registerInfo }} </span>
-          <el-button @click="changeContent">{{ bottomBtnName }}</el-button>
-        </div>
+        <!-- 下方: 註冊、登入、忘記密碼 -->
+        <el-row class="bottom-content">
+          <el-col :span="12">
+            <span v-if="!pageStatus">
+              忘記密碼
+            </span>
+          </el-col>
+          <!-- 註冊 or 登入 -->
+          <el-col :span="12" class="rightContent">
+            <span style="color: #999999">{{ pageStatus ? loginInfo : registerInfo }} </span>
+            <el-button @click="changeContent">{{ bottomBtnName }}</el-button>
+          </el-col>
+        </el-row>
+
       </el-form>
     </div>
   </div>
@@ -58,7 +72,7 @@ const reload: any = inject("reload");
 let title = ref('登入')
 let btnName = ref('登入')
 
-// true 註冊 false 登入
+// 網頁狀態: true 註冊 false 登入
 let pageStatus = ref(false)
 const registerInfo = ref('校園新朋友? ')
 const loginInfo = ref('已是校園一員 ')
@@ -84,6 +98,7 @@ const data = reactive({
     password: '',
     no: '',
     identity: '3',
+    rememberMe: '',
   }
 })
 
@@ -99,16 +114,25 @@ const formRef = ref()
 // 登入函數
 async function loginHandle() {
   const {data: res} = await http.post('/login', data.form)
+  console.log(res)
   if ('200' == res.code) {
     ElMessage.success(res.msg)
     // token
     setToken(JSON.stringify(res.data.token), 7)
-    // 使用者資料
+    /*
+      使用者資料:
+        使用者名稱
+        識別碼
+        角色
+        身分
+        清單
+     */
     userStore.$patch({
       name: res.data.name,
       id: res.data.id,
       roles: res.data.roles,
-      identity: res.data.identity
+      identity: res.data.identity,
+      menu: res.data.menus,
     })
     router.push({name: 'Home'})
   }
@@ -197,6 +221,14 @@ function changeIdentity() {
   font-size: 24px;
   text-align: center;
   margin-bottom: 30px;
+}
+
+.bottom-content {
+  margin-top: 10px;
+
+  .rightContent {
+    text-align: right;
+  }
 }
 
 </style>

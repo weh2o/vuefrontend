@@ -18,6 +18,7 @@ export const useUserStore = defineStore('user', {
                 teacher: 'TEACHER',
                 student: 'STUDENT',
             },
+            menu: [],       // 清單
         }
     },
     actions: {
@@ -59,6 +60,7 @@ export const useUserStore = defineStore('user', {
             {storage: localStorage, paths: ['identityType']},
             {storage: localStorage, paths: ['roles']},
             {storage: localStorage, paths: ['roleType']},
+            {storage: localStorage, paths: ['menu']},
 
         ]
     }

@@ -57,17 +57,9 @@ let menuInfo: any = ref([])
 
 // 掛載前執行
 onBeforeMount(() => {
-  getMenu()
+  menuInfo.value = userStore.menu
+
 })
-
-// 獲取清單
-async function getMenu() {
-  const {data: res} = await http.get("/menu/" + userStore.roles)
-
-  if ('200' == res.code) {
-    menuInfo.value = res.data
-  }
-}
 
 // 控制菜單折疊的屬性
 const menuCollapse = computed(() => {
