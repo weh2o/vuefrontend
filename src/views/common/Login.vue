@@ -119,19 +119,17 @@ async function loginHandle() {
     ElMessage.success(res.msg)
     // token
     setToken(JSON.stringify(res.data.token), 7)
-    /*
-      使用者資料:
-        使用者名稱
-        識別碼
-        角色
-        身分
-        清單
-     */
+    // 使用者資料:
     userStore.$patch({
+      // 使用者名稱
       name: res.data.name,
+      // 識別碼
       id: res.data.id,
+      // 角色
       roles: res.data.roles,
+      // 身分
       identity: res.data.identity,
+      // 清單
       menu: res.data.menus,
     })
     router.push({name: 'Home'})

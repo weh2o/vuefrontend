@@ -12,7 +12,7 @@ export const useUserStore = defineStore('user', {
                 teacher: '2',
                 student: '3',
             },
-            roles: '',      // 使用者角色權限
+            roles: [],      // 使用者角色權限
             roleType: {     // 角色權限常量
                 admin: 'ADMIN',
                 teacher: 'TEACHER',
@@ -29,11 +29,12 @@ export const useUserStore = defineStore('user', {
          * @return true有權限, false無權限
          */
         isPass(roleArr: Array<any>) {
-            let selfArr = this.roles.split("-");
-            for (let role of roleArr) {
-                for (let string of selfArr) {
-                    if (string == role) {
-                        return true
+            if (this.roles.length != 0) {
+                for (let role of roleArr) {
+                    for (let string of this.roles) {
+                        if (string == role) {
+                            return true
+                        }
                     }
                 }
             }
@@ -42,11 +43,11 @@ export const useUserStore = defineStore('user', {
     },
     getters: {
         // 是否為管理員身分
-        isAdmin(){
+        isAdmin() {
             return this.identity == this.identityType.admin
         },
         // 是否為老師身分
-        isTeacher(){
+        isTeacher() {
             return this.identity == this.identityType.teacher
         }
     },
