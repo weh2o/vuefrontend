@@ -114,10 +114,9 @@ const formRef = ref()
 // 登入函數
 async function loginHandle() {
   const {data: res} = await http.post('/login', data.form)
-  console.log(res)
   if ('200' == res.code) {
     ElMessage.success(res.msg)
-    // token
+    // 將token保存到Cookies
     setToken(JSON.stringify(res.data.token), 7)
     // 使用者資料:
     userStore.$patch({

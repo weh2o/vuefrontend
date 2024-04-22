@@ -33,6 +33,8 @@ import router from "@/router";
 import {delToken} from "@/util/tokenUtil"
 import {useUserStore} from '@/store/user'
 import {computed, onBeforeMount} from "vue";
+import http from "@/util/request";
+import {ElMessage} from "element-plus";
 
 const userStore = useUserStore()
 const tagStore = useTagStore()
@@ -58,9 +60,13 @@ function toUserInfo() {
 }
 
 // 登出
-function logout() {
-  delToken()
-  router.push({name: 'Login'})
+async function logout() {
+  const {data: res} = await http.get("/leave")
+  if ('200' == res.code) {
+    delToken()
+    ElMessage.success(res.msg)
+    router.push({name: 'Login'})
+  }
 }
 
 
