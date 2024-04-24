@@ -1,7 +1,6 @@
 <template>
   <div class="manage">
 
-
     <div class="manage-header">
       <el-button v-if="showAddBtn" class="add-button" type="primary" plain @click="courseDialog.dialogPop()">
         新增
@@ -10,9 +9,7 @@
       <!-- 搜索區 -->
       <el-form :model="searchForm" class="search-form" inline>
         <el-form-item>
-          <el-input placeholder="請輸入課程名稱或老師" v-model="searchForm.courseNameOrTeacher"></el-input>
-        </el-form-item>
-        <el-form-item>
+          <el-input class="search-text" placeholder="請輸入課程名稱或老師" v-model="searchForm.courseNameOrTeacher"></el-input>
           <el-button type="primary" @click="search">查詢</el-button>
         </el-form-item>
       </el-form>
@@ -323,6 +320,9 @@ provide('COURSE_BASE_URL', BASE_URL)
 
   .search-form {
     margin-left: auto;
+  }
+  .search-text{
+    width: 200px; margin-right: 10px
   }
 }
 

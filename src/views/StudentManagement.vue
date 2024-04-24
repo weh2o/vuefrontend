@@ -8,11 +8,9 @@
       <!-- 搜索區 -->
       <el-form :model="searchForm" inline>
         <el-form-item>
-          <el-input placeholder="請輸入學生證或姓名" v-model="searchForm.nameOrNo"></el-input>
-        </el-form-item>
-        <el-form-item>
+          <el-input class="search-text" placeholder="請輸入學生證或姓名" v-model="searchForm.nameOrNo"></el-input>
           <el-button type="primary" @click="search">查詢</el-button>
-          <el-button type="success" @click="findAll">全部</el-button>
+          <el-button type="success" @click="reFindAll">全部</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -343,6 +341,11 @@ function search() {
   }
 }
 
+function reFindAll() {
+  searchForm.nameOrNo = ""
+    findAll()
+}
+
 /**
  * 查一個學生
  * @param condition 條件
@@ -374,6 +377,9 @@ async function findStu(condition: string) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  .search-text{
+    width: 200px; margin-right: 10px
+  }
 }
 
 </style>
