@@ -17,9 +17,7 @@
 
     <!-- 頁面資料 -->
     <div class="table-content">
-      <!-- element bug 當 height設置為%時，內部的 el-table__inner-wrapper 也會被設定，導致下方出現空白 -->
       <el-table
-          height="90%"
           :data="tableData"
           :default-sort="{ prop: 'age', order: 'ascending' }"
           style="width: 100%;"
@@ -56,7 +54,7 @@
       </el-table>
 
       <!-- 分頁  -->
-      <div>
+      <div class="pagination-container">
         <el-pagination layout="prev, pager, next"
                        :total="total"
                        :page-size="pageSize"
@@ -135,7 +133,7 @@ import {validateMail} from "@/util/regExpUtil"
 import UsePage from "@/hooks/usePage";
 import {useUserStore} from "@/store/user";
 
-const userStore:any = useUserStore();
+const userStore: any = useUserStore();
 
 
 const BASE_URL = '/student'
@@ -155,7 +153,7 @@ let searchForm = reactive({
 const {total, nowPage, pageSize, sortProp, sortOrder, handlePage} = UsePage()
 
 // 監視當前頁變化，查詢資料
-watch(nowPage,(newValue, oldValue) =>{
+watch(nowPage, (newValue, oldValue) => {
   findAll()
 })
 
@@ -343,7 +341,7 @@ function search() {
 
 function reFindAll() {
   searchForm.nameOrNo = ""
-    findAll()
+  findAll()
 }
 
 /**
@@ -370,16 +368,28 @@ async function findStu(condition: string) {
 .table-content {
   position: absolute;
   width: 100%;
-  height: 100%;
 }
 
 .manage-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  .search-text{
-    width: 200px; margin-right: 10px
+
+  .search-text {
+    width: 200px;
+    margin-right: 10px
   }
+}
+
+.pagination-container {
+  position: relative;
+  height: 20px;
+  margin-top: 10px;
+}
+
+.el-pagination {
+  position: absolute;
+  right: 0;
 }
 
 </style>

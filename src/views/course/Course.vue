@@ -9,7 +9,9 @@
       <!-- 搜索區 -->
       <el-form :model="searchForm" class="search-form" inline>
         <el-form-item>
-          <el-input class="search-text" placeholder="請輸入課程名稱或老師" v-model="searchForm.courseNameOrTeacher"></el-input>
+          <el-input class="search-text" placeholder="請輸入課程名稱或老師"
+                    v-model="searchForm.courseNameOrTeacher">
+          </el-input>
           <el-button type="primary" @click="search">查詢</el-button>
         </el-form-item>
       </el-form>
@@ -17,9 +19,7 @@
 
     <!-- 頁面資料 -->
     <div class="table-content">
-      <!-- element bug 當 height設置為%時，內部的 el-table__inner-wrapper 也會被設定，導致下方出現空白 -->
       <el-table
-          height="90%"
           :data="tableData"
           :default-sort="{ prop: 'age', order: 'ascending' }"
           style="width: 100%;"
@@ -80,7 +80,7 @@
       </el-table>
 
       <!-- 分頁  -->
-      <div>
+      <div class="pagination-container">
         <el-pagination layout="prev, pager, next"
                        :total="total"
                        :page-size="pageSize"
@@ -311,7 +311,6 @@ provide('COURSE_BASE_URL', BASE_URL)
 .table-content {
   position: absolute;
   width: 100%;
-  height: 100%;
 }
 
 .manage-header {
@@ -321,9 +320,22 @@ provide('COURSE_BASE_URL', BASE_URL)
   .search-form {
     margin-left: auto;
   }
-  .search-text{
-    width: 200px; margin-right: 10px
+
+  .search-text {
+    width: 200px;
+    margin-right: 10px
   }
+}
+
+.pagination-container {
+  position: relative;
+  height: 20px;
+  margin-top: 10px;
+}
+
+.el-pagination {
+  position: absolute;
+  right: 0;
 }
 
 </style>
