@@ -10,34 +10,36 @@
       :collapse="menuCollapse"
   >
     <h3 class="menu-title">{{ menuCollapse ? '系統' : '校園系統' }}</h3>
+    <template v-for="menu in menuInfo" :key="menu.label">
 
-    <el-menu-item v-for="menu in menuInfo" :key="menu.label" :index="menu.path">
-      <el-icon>
-        <component :is="menu.icon"></component>
-      </el-icon>
-      <span>{{ menu.label }}</span>
-    </el-menu-item>
+      <!-- 有子菜單 -->
+      <el-sub-menu v-if="hasChildren(menu)" :index="menu.path">
+        <template #title>
+          <el-icon>
+            <component :is="menu.icon"></component>
+          </el-icon>
+          <span>{{ menu.label }}</span>
+        </template>
 
-    <!--      <el-sub-menu index="/">-->
-    <!--        <template #title>-->
-    <!--          <el-icon>-->
-    <!--            <location/>-->
-    <!--          </el-icon>-->
-    <!--          <span>很多東西的</span>-->
-    <!--        </template>-->
+        <el-menu-item-group>
+          <el-menu-item v-for="children in menu.children" :key="menu.path" :index="children.path">
+            <el-icon>
+              <component :is="children.icon"></component>
+            </el-icon>
+            <span>{{ children.label }}</span>
+          </el-menu-item>
+        </el-menu-item-group>
+      </el-sub-menu>
 
-    <!--        <el-menu-item-group title="Group One">-->
-    <!--          <el-menu-item index="1-1">item one</el-menu-item>-->
-    <!--          <el-menu-item index="1-2">item two</el-menu-item>-->
-    <!--        </el-menu-item-group>-->
-    <!--        <el-menu-item-group title="Group Two">-->
-    <!--          <el-menu-item index="1-3">item three</el-menu-item>-->
-    <!--        </el-menu-item-group>-->
-    <!--        <el-sub-menu index="1-4">-->
-    <!--          <template #title>item four</template>-->
-    <!--          <el-menu-item index="1-4-1">item one</el-menu-item>-->
-    <!--        </el-sub-menu>-->
-    <!--      </el-sub-menu>-->
+      <!-- 沒有子菜單 -->
+      <el-menu-item v-else :index="menu.path" :key="menu.path">
+        <el-icon>
+          <component :is="menu.icon"></component>
+        </el-icon>
+        <span>{{ menu.label }}</span>
+      </el-menu-item>
+
+    </template>
 
   </el-menu>
 </template>
@@ -45,9 +47,8 @@
 <script setup lang="ts">
 import router from "@/router";
 import {useTagStore} from "@/store/tag";
-import {computed, onBeforeMount, reactive, ref} from "vue";
+import {computed, onBeforeMount, ref} from "vue";
 import {useUserStore} from '@/store/user'
-import http from "@/util/request";
 
 const userStore: any = useUserStore()
 const tagStore: any = useTagStore()
@@ -58,13 +59,20 @@ let menuInfo: any = ref([])
 // 掛載前執行
 onBeforeMount(() => {
   menuInfo.value = userStore.menu
-
 })
 
 // 控制菜單折疊的屬性
 const menuCollapse = computed(() => {
   return tagStore.menuCollapse
 })
+
+// 判断是否有子菜单
+function hasChildren(menu: any) {
+  if (menu.children && menu.children.length > 0) {
+    return true;
+  }
+  return false;
+}
 
 </script>
 
