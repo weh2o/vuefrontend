@@ -36,8 +36,8 @@ import {computed, onBeforeMount} from "vue";
 import http from "@/util/request";
 import {ElMessage} from "element-plus";
 
-const userStore = useUserStore()
-const tagStore = useTagStore()
+const userStore: any = useUserStore()
+const tagStore: any = useTagStore()
 
 
 const title = computed(() => {

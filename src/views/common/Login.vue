@@ -128,7 +128,7 @@ async function loginHandle() {
       roles: res.data.roles,
       // 身分
       identity: res.data.identity,
-      // 清單
+      // 菜單
       menu: res.data.menus,
     })
     router.push({name: 'Home'})

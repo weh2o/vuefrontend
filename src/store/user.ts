@@ -18,7 +18,7 @@ export const useUserStore = defineStore('user', {
                 teacher: 'TEACHER',
                 student: 'STUDENT',
             },
-            menu: [],       // 清單
+            menu: [],       // 菜單
         }
     },
     actions: {
