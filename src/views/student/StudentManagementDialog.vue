@@ -4,16 +4,16 @@
     <el-dialog
         v-model="dialogVisible"
         :title="dialogTitle"
-        width="600"
+        width="35%"
         :before-close="handleClose"
     >
-      <!-- 用inline select會失效    -->
-      <el-form :model="form" ref="formRef" :rules="rules">
+      <!-- 表單內容 -->
+      <el-form :model="form" ref="formRef" :rules="rules" inline>
         <el-form-item prop="name" label="姓名">
           <el-input v-model="form.name" placeholder="請輸入姓名"/>
         </el-form-item>
 
-        <el-form-item prop="sex" label="性別">
+        <el-form-item prop="sex" label="性別" style="width: 30%">
           <el-select v-model="form.sex" placeholder="請選擇性別">
             <el-option label="男" value="1"/>
             <el-option label="女" value="2"/>
@@ -43,11 +43,11 @@
 
       </el-form>
 
-      <!-- 新增框內的確認、取消按鈕    -->
+      <!-- 表單提交的確認、取消按鈕 -->
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="addStuValidate(formRef)">
+          <el-button @click="resetForm(form)">取消</el-button>
+          <el-button type="primary" @click="saveStuValidate(formRef)">
             確定
           </el-button>
         </div>
@@ -80,6 +80,17 @@ let form = reactive({
   birth: '',
 })
 
+/**
+ * 清空表單並關閉彈出框
+ * @param form 表單
+ */
+function resetForm(form: any) {
+  Object.keys(form).forEach(key => {
+    form[key] = ""
+  })
+  dialogVisible.value = false
+}
+
 // 控制彈出框顯示
 const dialogVisible = ref(false)
 
@@ -105,15 +116,13 @@ const handleClose = (done: () => void) => {
   ElMessageBox.confirm('確定要關閉嗎?', {
     confirmButtonText: '關閉',
     cancelButtonText: '繼續',
+  }).then(() => {
+    done()
+    // 清空資料
+    resetForm(form)
+  }).catch(() => {
+    // catch error
   })
-      .then(() => {
-        done()
-        // 清空資料
-        formRef.value.resetFields()
-      })
-      .catch(() => {
-        // catch error
-      })
 }
 
 
@@ -122,22 +131,17 @@ function handleAdd() {
   ElMessageBox.confirm('確定要' + dialogConfirm.value + '嗎?', {
     confirmButtonText: '新增',
     cancelButtonText: '再想想',
+  }).then(() => {
+    saveStu()
+    // 清空資料
+    resetForm(form)
+  }).catch(() => {
+    // catch error
   })
-      .then(() => {
-        addStu()
-        // 清空資料
-        formRef.value.resetFields()
-        // 關閉視窗
-        dialogVisible.value = false
-        // done()
-      })
-      .catch(() => {
-        // catch error
-      })
 }
 
 // 新增學生函數
-async function addStu() {
+async function saveStu() {
   const json = JSON.stringify(form)
   const {data: res} = await http.post(BASE_URL, json)
   if ('200' == res.code) {
@@ -154,7 +158,7 @@ const rules = reactive({
   mail: [{validator: validateMail, trigger: 'blur'},],
 })
 
-const addStuValidate = async (formEl: FormInstance | undefined) => {
+const saveStuValidate = async (formEl: FormInstance | undefined) => {
   // 驗證輸入
   if (!formEl) return
   await formEl.validate((valid, fields) => {
