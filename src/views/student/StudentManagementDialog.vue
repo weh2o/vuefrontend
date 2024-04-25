@@ -62,7 +62,7 @@
       <!-- 表單提交的確認、取消按鈕 -->
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="resetForm(form)">取消</el-button>
+          <el-button @click="closeForm()">取消</el-button>
           <el-button type="primary" @click="saveStuValidate(formRef)">
             確定
           </el-button>
@@ -77,6 +77,7 @@ import {inject, reactive, ref, toRaw} from 'vue'
 import {ElMessage, ElMessageBox, type FormInstance} from 'element-plus'
 import http from "@/util/request";
 import {validateMail} from "@/util/regExpUtil"
+import {resetForm} from "@/api/formApi"
 
 const BASE_URL = '/student'
 
@@ -96,14 +97,9 @@ let form = reactive({
   birth: '',
 })
 
-/**
- * 清空表單並關閉彈出框
- * @param form 表單
- */
-function resetForm(form: any) {
-  Object.keys(form).forEach(key => {
-    form[key] = ""
-  })
+// 一般關閉
+function closeForm() {
+  resetForm(form)
   dialogVisible.value = false
 }
 
@@ -119,7 +115,7 @@ const dialogPop = ((index: number, row: any) => {
   if (row) {
     dialogTitle.value = '修改'
     dialogConfirm.value = '修改'
-    // 將原本的資料放到表單中，JSON.parse(JSON.stringify(toRaw(row))) 深拷貝
+    // 將原本的資料放到表單中
     let originalForm = reactive(JSON.parse(JSON.stringify(toRaw(row))))
     Object.assign(form, originalForm)
   } else {
@@ -137,7 +133,7 @@ const handleClose = (done: () => void) => {
   }).then(() => {
     done()
     // 清空資料
-    resetForm(form)
+    resetForm(form, dialogVisible)
   }).catch(() => {
     // catch error
   })
@@ -152,7 +148,7 @@ function handleAdd() {
   }).then(() => {
     saveStu()
     // 清空資料
-    resetForm(form)
+    resetForm(form, dialogVisible)
   }).catch(() => {
     // catch error
   })

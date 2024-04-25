@@ -3,16 +3,27 @@
     <el-dialog
         v-model="dialogVisible"
         :title="dialogTitle"
-        width="600"
+        width="35%"
         :before-close="handleClose"
     >
-      <el-form :model="form" ref="formRef" :rules="courseRules">
-        <el-form-item prop="name" label="課程名稱" style="width: 500px">
-          <el-input v-model="form.name" placeholder="請輸入課程名稱"/>
-        </el-form-item>
+      <el-form :model="form" ref="formRef" :rules="courseRules" :hide-required-asterisk="true">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item prop="name" label="課程名稱" class="form-name-content">
+              <el-input v-model="form.name" placeholder="請輸入課程名稱"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item prop="maxCount" label="課程人數" class="form-maxCount-content">
+              <el-input v-model.number="form.maxCount" placeholder="課程人數"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
 
         <div v-if="showTeacherOption">
-          <el-form-item prop="teacherId" label="老師">
+          <el-form-item prop="teacherId" label="老師" class="form-teacher-content">
             <el-select v-model="form.teacherId" placeholder="請選擇老師">
               <div v-for="item in teachersData" :key="item.id">
                 <el-option :label="item.name" :value="item.id"/>
@@ -21,9 +32,6 @@
           </el-form-item>
         </div>
 
-        <el-form-item prop="maxCount" label="課程人數" style="width: 180px">
-          <el-input v-model.number="form.maxCount" placeholder="課程人數"/>
-        </el-form-item>
 
         <el-form-item prop="deadline" label="報名截止日期">
           <el-date-picker
@@ -82,13 +90,14 @@
         </el-form-item>
 
         <el-form-item prop="location" label="上課地點">
-          <el-select v-model="form.location" placeholder="請選擇地點">
+          <el-select v-model="form.location" placeholder="請選擇地點" class="form-location-select">
             <div v-for="item in locationData" :key="item.id">
               <el-option v-if="item.name != 'OTHER'" :label="item.nameZh" :value="item.id"/>
             </div>
             <el-option label="其他" value="OTHER"/>
           </el-select>
-          <el-input v-if="showLocationText" v-model="form.otherLocation" placeholder="請輸入上課地點"/>
+          <el-input v-if="showLocationText" v-model="form.otherLocation" placeholder="請輸入上課地點"
+                    class="form-location-text"/>
         </el-form-item>
 
       </el-form>
@@ -96,7 +105,7 @@
       <!-- 新增框內的確認、取消按鈕    -->
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button @click="closePop">取消</el-button>
           <el-button type="primary" @click="addValidate(formRef)">
             確定
           </el-button>
@@ -107,10 +116,11 @@
 </template>
 
 <script setup lang="ts">
-import {computed, inject, nextTick, onBeforeMount, reactive, ref, watch, watchEffect, toRaw} from 'vue'
+import {computed, inject, nextTick, onBeforeMount, reactive, ref, toRaw, watchEffect} from 'vue'
 import {ElMessage, ElMessageBox, type FormInstance} from 'element-plus'
 import http from "@/util/request";
 import {useUserStore} from "@/store/user"
+import {resetForm} from "@/api/formApi"
 
 const userStore: any = useUserStore()
 
@@ -121,6 +131,11 @@ onBeforeMount(() => {
     form.teacherId = userStore.id
   }
 })
+
+// 一般關閉
+function closePop() {
+  resetForm(form, dialogVisible)
+}
 
 
 // 刷新頁面用
@@ -139,21 +154,22 @@ let dialogTitle = ref('')
 let dialogConfirm = ref('')
 
 // 新增(修改)框彈出
-const dialogPop = (( index: number, row: any ) => {
-  if (row){
+const dialogPop = ((index: number, row: any) => {
+  if (row) {
     dialogTitle.value = '修改'
     dialogConfirm.value = '修改'
-    form = reactive(JSON.parse(JSON.stringify(toRaw(row))));
-  }else {
+    //  將原本的資料放到表單中
+    let originalForm = reactive(JSON.parse(JSON.stringify(toRaw(row))))
+    Object.assign(form, originalForm)
+  } else {
     dialogTitle.value = '新增'
     dialogConfirm.value = '新增'
   }
   getLocation()
 
-  if (userStore.isAdmin){
+  if (userStore.isAdmin) {
     getTeachers()
   }
-
   dialogVisible.value = true
 })
 
@@ -162,15 +178,13 @@ const handleClose = (done: () => void) => {
   ElMessageBox.confirm('確定要關閉嗎?', {
     confirmButtonText: '關閉',
     cancelButtonText: '繼續',
+  }).then(() => {
+    done()
+    // 清空資料
+    resetForm(form, dialogVisible)
+  }).catch(() => {
+    // catch error
   })
-      .then(() => {
-        done()
-        // 清空資料
-        formRef.value.resetFields()
-      })
-      .catch(() => {
-        // catch error
-      })
 }
 
 // 顯示其他上課地點輸入框
@@ -208,17 +222,19 @@ let form = reactive({
 // 清除驗證錯誤提示監視
 watchEffect(() => {
   // 清除「老師」欄位驗證提示 (內容為空 且 是管理員身分)
-  if (form.teacherId != '' && userStore.identity == userStore.identityType.admin){
-    nextTick(formRef.value.clearValidate('teacherId'))
+  if (form.teacherId != '' && form.teacherId != undefined && userStore.identity == userStore.identityType.admin) {
+    if (formRef.value != undefined) {
+      nextTick(formRef.value.clearValidate('teacherId'))
+    }
   }
 
   // 清除「地點」欄位驗證提示
-  if (form.location != ''){
+  if (form.location != '' && formRef.value != undefined) {
     nextTick(formRef.value.clearValidate('location'))
   }
 
   // 清除「上課時間」欄位驗證提示
-  if (form.startTime != '' && form.endTime != '') {
+  if (form.startTime != '' && form.endTime != '' && formRef.value != undefined) {
     nextTick(formRef.value.clearValidate(['courseTime']))
   }
 })
@@ -270,7 +286,7 @@ let teachersData: any = ref([])
 const disabledDateEnd = (time: Date) => {
 
   // 不能是今天以前
-  if (form.startDate == ''){
+  if (form.startDate == '') {
     return time.getTime() <= Date.now()
   }
   // 結束日期在開始日期之後
@@ -307,18 +323,14 @@ const handleAdd = (done: () => void) => {
   ElMessageBox.confirm('確定要' + dialogConfirm.value + '嗎?', {
     confirmButtonText: '新增',
     cancelButtonText: '再想想',
+  }).then(() => {
+    addCourse()
+    // 清空資料
+    resetForm(form, dialogVisible)
+    done()
+  }).catch(() => {
+    // catch error
   })
-      .then(() => {
-        addCourse()
-        // 清空資料
-        formRef.value.resetFields()
-        // 關閉視窗
-        dialogVisible.value = false
-        done()
-      })
-      .catch(() => {
-        // catch error
-      })
 }
 
 // 添加函數axios
@@ -349,12 +361,30 @@ async function getTeachers() {
 }
 
 
-
 // 對外曝露組件內容
-defineExpose({dialogPop })
+defineExpose({dialogPop})
 
 </script>
 
 <style scoped>
+.form-name-content {
+  width: 90%;
+}
+
+.form-maxCount-content {
+  width: 40%;
+}
+
+.form-teacher-content {
+  width: 40%;
+}
+
+.form-location-select {
+  width: 30%;
+}
+
+.form-location-text {
+  width: 50%;
+}
 
 </style>
