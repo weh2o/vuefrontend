@@ -8,38 +8,54 @@
         :before-close="handleClose"
     >
       <!-- 表單內容 -->
-      <el-form :model="form" ref="formRef" :rules="rules" inline>
-        <el-form-item prop="name" label="姓名">
-          <el-input v-model="form.name" placeholder="請輸入姓名"/>
-        </el-form-item>
+      <el-form :model="form" ref="formRef" :rules="rules" :hide-required-asterisk="true">
 
-        <el-form-item prop="sex" label="性別" style="width: 30%">
-          <el-select v-model="form.sex" placeholder="請選擇性別">
-            <el-option label="男" value="1"/>
-            <el-option label="女" value="2"/>
-            <el-option label="未知" value="3"/>
-          </el-select>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item class="form-left-content" prop="name" label="姓名">
+              <el-input v-model="form.name" placeholder="請輸入姓名"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="sex" label="性別" style="width: 50%">
+              <el-select v-model="form.sex" placeholder="請選擇性別">
+                <el-option label="男" value="1"/>
+                <el-option label="女" value="2"/>
+                <el-option label="未知" value="3"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-        <el-form-item prop="no" label="學生證">
-          <el-input v-model="form.no" placeholder="請輸入學生證"/>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item class="form-left-content" prop="no" label="學生證">
+              <el-input v-model="form.no" placeholder="請輸入學生證"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="birth" label="生日">
+              <el-date-picker
+                  v-model="form.birth"
+                  type="date"
+                  placeholder="請選擇日期"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-        <el-form-item prop="birth" label="生日">
-          <el-date-picker
-              v-model="form.birth"
-              type="date"
-              placeholder="請選擇日期"
-          />
-        </el-form-item>
-
-        <el-form-item prop="phone" label="電話">
-          <el-input v-model="form.phone" placeholder="請輸入電話"/>
-        </el-form-item>
-
-        <el-form-item prop="mail" label="信箱">
-          <el-input v-model="form.mail" placeholder="請輸入信箱"/>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item class="form-left-content" prop="phone" label="電話">
+              <el-input v-model="form.phone" placeholder="請輸入電話"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="mail" label="信箱">
+              <el-input v-model="form.mail" placeholder="請輸入信箱"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
       </el-form>
 
@@ -103,7 +119,9 @@ const dialogPop = ((index: number, row: any) => {
   if (row) {
     dialogTitle.value = '修改'
     dialogConfirm.value = '修改'
-    form = reactive(JSON.parse(JSON.stringify(toRaw(row))));
+    // 將原本的資料放到表單中，JSON.parse(JSON.stringify(toRaw(row))) 深拷貝
+    let originalForm = reactive(JSON.parse(JSON.stringify(toRaw(row))))
+    Object.assign(form, originalForm)
   } else {
     dialogTitle.value = '新增'
     dialogConfirm.value = '新增'
@@ -173,5 +191,7 @@ defineExpose({dialogPop})
 </script>
 
 <style scoped>
-
+.form-left-content {
+  width: 90%;
+}
 </style>
