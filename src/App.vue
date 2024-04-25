@@ -1,9 +1,15 @@
 <template>
-  <RouterView v-if="isRouter"/>
+  <el-config-provider :locale="locale">
+    <RouterView v-if="isRouter"/>
+  </el-config-provider>
 </template>
 
 <script setup lang="ts">
 import {nextTick, provide, ref} from "vue";
+import {ElConfigProvider} from 'element-plus'
+import zhTw from 'element-plus/es/locale/lang/zh-tw'
+
+let locale = ref(zhTw)
 
 const isRouter = ref(true);
 
