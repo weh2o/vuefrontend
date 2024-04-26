@@ -2,9 +2,14 @@
 
   <div class="manage">
     <div class="manage-header">
-      <el-button class="add-button" type="primary" plain @click="studentDialogRef.dialogPop()">
-        新增
-      </el-button>
+      <div>
+        <el-button class="add-button" type="primary" plain @click="studentDialogRef.dialogPop()">
+          新增
+        </el-button>
+        <el-button class="" type="danger" plain @click="handleSelectedDelete()">
+          選擇的全部刪除
+        </el-button>
+      </div>
       <!-- 搜索區 -->
       <el-form :model="searchForm" inline>
         <el-form-item>
@@ -22,7 +27,9 @@
           :default-sort="{ prop: 'age', order: 'ascending' }"
           style="width: 100%;"
           @sort-change="sortChange"
+          @selection-change="handleSelectionChange"
       >
+        <el-table-column type="selection" sortable/>
         <el-table-column prop="name" label="姓名" sortable width="180"/>
         <el-table-column prop="sex" label="性別" width="80" sortable>
           <template #default="scope">
@@ -93,6 +100,8 @@ let searchForm = reactive({
 
 let studentDialogRef = ref()
 
+// 勾選中的資料
+let selectedData: any = ref([])
 
 // 分頁相關
 const {total, nowPage, pageSize, sortProp, sortOrder, handlePage} = UsePage()
@@ -143,8 +152,7 @@ async function removeStu(id: string) {
   const {data: res} = await http.delete(BASE_URL + '/' + id)
   if ('200' == res.code) {
     ElMessage.success(res.msg)
-    // 刷新頁面
-    reload()
+    findAll()
   }
 }
 
@@ -153,13 +161,11 @@ const deleteStu = (id: string) => {
   ElMessageBox.confirm('確定要刪除嗎?', {
     confirmButtonText: '刪除',
     cancelButtonText: '保留',
+  }).then(() => {
+    removeStu(id)
+  }).catch(() => {
+    // catch error
   })
-      .then(() => {
-        removeStu(id)
-      })
-      .catch(() => {
-        // catch error
-      })
 }
 
 
@@ -175,10 +181,69 @@ function search() {
   }
 }
 
+// 查詢所有
 function reFindAll() {
   searchForm.nameOrNo = ""
   findAll()
 }
+
+
+/**
+ * 多選框發生變化觸發
+ * @param selection 被選中的所有資料(陣列類型)
+ */
+function handleSelectionChange(selection: Array<any>) {
+  // 將選中的物件陣列轉換成ID陣列
+  let selectedArr = selection.map(({id, name}) => {
+    return {id, name}
+  })
+  // 保存到本地便於操作
+  selectedData.value = selectedArr
+}
+
+// 刪除所有勾選的資料
+function handleSelectedDelete() {
+  let names = selectedData.value.map(item => item.name).join("<br>")
+  let msg = '確定要刪除以下資料嗎? <br>' + names
+  ElMessageBox.confirm(msg, {
+    confirmButtonText: '刪除',
+    cancelButtonText: '保留',
+    dangerouslyUseHTMLString: true
+  }).then(() => {
+    selectedDelete()
+
+  })
+}
+
+// 刪除函數
+async function selectedDelete() {
+  const {data: res} = await http.delete(BASE_URL, {data: selectedData.value})
+  // 刪除成功
+  if (res.code == '200') {
+    console.log(res.data.failList)
+    // 刪除成功的顯示
+    if (res.data.successList != null) {
+      let names = res.data.successList.map(item => item.name).join("<br>")
+      let msg = '刪除以下資料成功: <br>' + names
+      ElMessage.success({
+        message: msg,
+        dangerouslyUseHTMLString: true
+      })
+
+    }
+    // 部分刪除失敗的顯示
+    if (res.data.failList != null) {
+      let names = res.data.failList.map(item => item.name).join("<br>")
+      let msg = '刪除以下資料失敗: <br>' + names
+      ElMessage.error({
+        message: msg,
+        dangerouslyUseHTMLString: true
+      })
+    }
+    findAll()
+  }
+}
+
 
 </script>
 
@@ -215,5 +280,6 @@ function reFindAll() {
   position: absolute;
   right: 0;
 }
+
 
 </style>
