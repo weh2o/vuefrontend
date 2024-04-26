@@ -24,23 +24,22 @@
     <div class="table-content">
       <el-table
           :data="tableData"
-          :default-sort="{ prop: 'age', order: 'ascending' }"
           style="width: 100%;"
           @sort-change="sortChange"
           @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" sortable/>
-        <el-table-column prop="name" label="姓名" sortable width="180"/>
-        <el-table-column prop="sex" label="性別" width="80" sortable>
+        <el-table-column prop="name" label="姓名" sortable="custom" width="180"/>
+        <el-table-column prop="sex" label="性別" width="80" sortable="custom">
           <template #default="scope">
             <span>{{ scope.row.sex === '1' ? '男' : scope.row.sex === '2' ? '女' : '未知' }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="age" label="年齡" width="80" sortable/>
-        <el-table-column prop="no" label="學生證" sortable/>
-        <el-table-column prop="birth" label="生日" sortable/>
-        <el-table-column prop="phone" label="電話" sortable/>
-        <el-table-column prop="mail" label="信箱" sortable/>
+        <el-table-column prop="age" label="年齡" width="80" sortable="custom"/>
+        <el-table-column prop="no" label="學生證" sortable="custom"/>
+        <el-table-column prop="birth" label="生日" sortable="custom"/>
+        <el-table-column prop="phone" label="電話" sortable="custom"/>
+        <el-table-column prop="mail" label="信箱" sortable="custom"/>
         <el-table-column label="操作">
           <template #default="scope">
             <el-button size="small" type="info" @click="studentDialogRef.dialogPop(scope.$index, scope.row)"
@@ -208,7 +207,7 @@ function handleSelectedDelete() {
   ElMessageBox.confirm(msg, {
     confirmButtonText: '刪除',
     cancelButtonText: '保留',
-    dangerouslyUseHTMLString: true
+    dangerouslyUseHTMLString: true,
   }).then(() => {
     selectedDelete()
 
