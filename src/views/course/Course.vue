@@ -21,17 +21,16 @@
     <div class="table-content">
       <el-table
           :data="tableData"
-          :default-sort="{ prop: 'age', order: 'ascending' }"
           style="width: 100%;"
           @sort-change="sortChange"
       >
-        <el-table-column prop="name" label="課程名稱" sortable/>
-        <el-table-column prop="teacher" label="老師" width="100" sortable/>
-        <el-table-column prop="count" label="人數" width="100" sortable/>
-        <el-table-column prop="maxCount" label="總人數" width="100" sortable/>
-        <el-table-column prop="deadline" label="報名截止日" width="120" sortable/>
-        <el-table-column prop="courseDate" label="課程時間" width="180" sortable/>
-        <el-table-column prop="courseTime" label="上課時間" width="120" sortable/>
+        <el-table-column prop="name" label="課程名稱" sortable="custom"/>
+        <el-table-column prop="teacher" label="老師" width="100" sortable="custom"/>
+        <el-table-column prop="count" label="人數" width="100" sortable="custom"/>
+        <el-table-column prop="maxCount" label="總人數" width="100" sortable="custom"/>
+        <el-table-column prop="deadline" label="報名截止日" width="120" sortable="custom"/>
+        <el-table-column prop="courseDate" label="課程時間" width="180" sortable="custom"/>
+        <el-table-column prop="courseTime" label="上課時間" width="120" sortable="custom"/>
         <el-table-column prop="location" label="上課地點" sortable/>
 
 
@@ -50,7 +49,6 @@
             </el-button>
 
             <!-- 已報名 -->
-            <!--            <el-button v-if="scope.row.isSignUp == '1' && scope.row.isSelf == '0'"-->
             <el-button v-if="isShowSignedUpBtn(scope.row)"
                        size="small" type="success"
                        disabled
@@ -207,8 +205,7 @@ async function removeCourse(id: string) {
   const {data: res} = await http.delete(BASE_URL + '/' + id)
   if ('200' == res.code) {
     ElMessage.success(res.msg)
-    // 刷新頁面
-    reload()
+    findAll()
   }
 }
 
@@ -230,7 +227,7 @@ async function signUp(courseId: string) {
   const {data: res} = await http.patch(url)
   if ('200' == res.code) {
     ElMessage.success(res.msg)
-    reload()
+    findAll()
   }
 }
 
